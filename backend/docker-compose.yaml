@@ -1,0 +1,16 @@
+version: '4.27.2'
+services:
+  api-market:
+    image: bitnami/postgresql
+    restart: always
+    environment:
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_DB=api-market
+    volumes:
+      - postgres:/bitnami/postgresql
+    ports:
+      - '5432:5432'
+
+volumes:
+ postgres:
