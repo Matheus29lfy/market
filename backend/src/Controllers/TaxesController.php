@@ -87,15 +87,21 @@ class TaxesController {
             }
         }
 
-        $taxesReturn = $this->taxesService->insert($taxes);
-
-        if ($taxesReturn) {
-            $response->getBody()->write(json_encode(['message' => 'Imposto inserido com sucesso!']));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
-        } else {
-            $response->getBody()->write(json_encode(['message' => 'Erro ao inserir Imposto.']));
+        try {
+            $taxesReturn = $this->taxesService->insert($taxes);
+    
+            if ($taxesReturn) {
+                $response->getBody()->write(json_encode(['message' => 'Imposto inserido com sucesso!']));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+            } else {
+                $response->getBody()->write(json_encode(['message' => 'Erro ao inserir Imposto.']));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+            }
+        } catch (\Exception $exception) {
+            $response->getBody()->write(json_encode(['message' => $exception->getMessage()]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
+        
     }
 
     /**

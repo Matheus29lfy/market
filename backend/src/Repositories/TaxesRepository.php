@@ -21,16 +21,19 @@ class TaxesRepository{
 
   public function insert($taxes):bool
   {
-    $sql = "INSERT INTO taxes (type_product_id, tax_percentage) VALUES (:type_product_id,:tax_percentage)";
-    $stmt = $this->db->prepare($sql);
-    $stmt->bindParam(':type_product_id', $taxes['type_product_id']);
-    $stmt->bindParam(':tax_percentage', $taxes['tax_percentage']);
- 
-    if($stmt->execute()){
-      return true;
-    };
+    try {
+      $sql = "INSERT INTO taxes (type_product_id, tax_percentage) VALUES (:type_product_id,:tax_percentage)";
+      $stmt = $this->db->prepare($sql);
+      $stmt->bindParam(':type_product_id', $taxes['type_product_id']);
+      $stmt->bindParam(':tax_percentage', $taxes['tax_percentage']);
+   
+      if($stmt->execute()){
+        return true;
+      };
+    } catch (\Exception $exception) {
+        throw new \Exception('Erro ao inserir: ' . $exception->getMessage());
+    }
     return false;
- 
   }
 
 }

@@ -2,6 +2,9 @@
 
 import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment, useEffect, useState } from 'react';
+import { Notyf } from 'notyf';
+import 'notyf/notyf.min.css';
+import { isNumeric } from '../lib';
 
 interface ProductType {
   id: number;
@@ -16,9 +19,15 @@ interface TaxesModalProps {
 
 const TaxesModal: React.FC<TaxesModalProps> = ({ isOpen, closeModal, addedTaxes }) => {
   const [taxPercentage, setTaxPercentage] = useState('');
-  const [productTypeId, setProductTypeId] = useState('');
+  const [typeProductId, setTypeProductId] = useState('');
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const notyf = new Notyf();
+
+  const clearInput = () =>{
+    setTaxPercentage('')
+    setTypeProductId('')
+  }
 
   useEffect(() => {
     const fetchProductTypes = async () => {
@@ -37,23 +46,39 @@ const TaxesModal: React.FC<TaxesModalProps> = ({ isOpen, closeModal, addedTaxes 
         setIsLoading(false);
       } catch (error) {
         console.error('Erro ao buscar tipos de produto:', error);
+        notyf.error("Erro ao buscar tipos de produto")
         setIsLoading(false);
       }
     };
 
     fetchProductTypes();
 
-  }, []);
+    if(!isOpen){
+      clearInput()
+    }
+
+  }, [isOpen]);
 
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const validTaxPercentage = isNumeric(taxPercentage)
+
+    if(!validTaxPercentage){
+      notyf.error("O valor da taxa é inválido")
+      return
+    }
+
     const taxProduct = {
       tax_percentage:parseFloat(taxPercentage) ,
-      type_product_id: parseInt(productTypeId),
+      type_product_id: parseInt(typeProductId)
     };
 
+    if(taxProduct.tax_percentage <= 0 || taxProduct.tax_percentage >= 100){
+      notyf.error("O valor da taxa do imposto deve ser maior que 0 e menor que 100")
+      return
+    }
     const response = await fetch('http://localhost:8080/taxes', {
       method: 'POST',
       headers: {
@@ -65,10 +90,10 @@ const TaxesModal: React.FC<TaxesModalProps> = ({ isOpen, closeModal, addedTaxes 
     if (response.ok) {
       closeModal();
       addedTaxes();
-      setTaxPercentage('');
-      setProductTypeId('')
+      clearInput()
+      notyf.success("Imposto criado com sucesso")
     } else {
-      console.error('Failed to create type product');
+      notyf.error("Falha ao criar tipo de imposto")
     }
   };
 
@@ -123,16 +148,16 @@ const TaxesModal: React.FC<TaxesModalProps> = ({ isOpen, closeModal, addedTaxes 
               <form onSubmit={handleSubmit} className="mt-4">
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="productType">
-                    Product Type
+                   Tipo de Produto
                   </label>
                   <select
                     id="productType"
-                    value={productTypeId}
-                    onChange={(e) => setProductTypeId(e.target.value)}
+                    value={typeProductId}
+                    onChange={(e) => setTypeProductId(e.target.value)}
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     required
                   >
-                    <option value="">Select Product Type</option>
+                    <option value="">Selecione o Tipo De Produto</option>
                     {productTypes.map((type) => (
                       <option key={type.id} value={type.id}>{type.name}</option>
                     ))}

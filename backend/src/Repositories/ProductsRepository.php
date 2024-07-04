@@ -14,25 +14,30 @@ class ProductsRepository{
  
   public function getAll()
   {
-    $stmt = $this->db->query('SELECT * FROM products');
+    $stmt = $this->db->query('SELECT * FROM products WHERE quantity > 0');
  
     return $stmt->fetchAll(\PDO::FETCH_ASSOC);
   }
 
   public function insert($product):bool
   {
+    try {
+      
   
-    $sql = "INSERT INTO products (name,price, quantity, type_category_id) VALUES (:name, :price, :quantity,:type_category_id)";
-    $stmt = $this->db->prepare($sql);
+        $sql = "INSERT INTO products (name,price, quantity, type_category_id) VALUES (:name, :price, :quantity,:type_category_id)";
+        $stmt = $this->db->prepare($sql);
+        
+        $stmt->bindParam(':name', $product['name']);
+        $stmt->bindParam(':price', $product['price']);
+        $stmt->bindParam(':quantity', $product['quantity']);
+        $stmt->bindParam(':type_category_id', $product['type_category_id']);
     
-    $stmt->bindParam(':name', $product['name']);
-    $stmt->bindParam(':price', $product['price']);
-    $stmt->bindParam(':quantity', $product['quantity']);
-    $stmt->bindParam(':type_category_id', $product['type_category_id']);
- 
-    if($stmt->execute()){
-      return true;
-    };
+        if($stmt->execute()){
+          return true;
+        };
+      } catch (\Exception $exception) {
+        throw new \Exception('Erro ao inserir: ' . $exception->getMessage());
+      }
     return false;
  
   }
@@ -79,7 +84,7 @@ public function updateQuantitySingle($productId, int $quantityChange) {
         return true; // Retorna verdadeiro se a atualização ocorrer bem
     } catch (PDOException $e) {
       throw new PDOException($e->getMessage(), (int)$e->getCode());
-        // return false; // Retorna falso se houver erro
+
     }
 }
 

@@ -6,6 +6,9 @@ import { toast } from 'react-toastify';
 // import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { getTokenSession } from '../lib';
+import { Notyf } from 'notyf';
+import 'notyf/notyf.min.css';
+
 interface Product {
   id: number;
   name: string;
@@ -38,7 +41,7 @@ const HomePage: React.FC = () => {
   const[user, setUser]= useState<User>()
   // const { isAuthenticated } = useAuth();
   const router = useRouter(); 
-  
+  const notyf = new Notyf();
 
   
   useEffect(() => {
@@ -118,6 +121,13 @@ const HomePage: React.FC = () => {
     //   console.log(user.authenticate)
     // return
     const { totalNoTax, totalWithTaxes } = calculateTotal();
+
+    if(totalNoTax <= 0){
+        notyf.error('Adicione pelo menos um produto para finalizar a venda')
+        return
+    }
+
+
     const response = await fetch('http://localhost:8080/sells', {
       method: 'POST',
       headers: {
@@ -134,10 +144,10 @@ const HomePage: React.FC = () => {
 
     if (response.ok) {
       toast.success('Venda realizada com sucesso');
-
+      notyf.success('Venda realizada com sucesso');
       setCart([]);
     } else {
-      toast.error('Erro ao realizar venda');
+      notyf.error('Adicione pelo menos um produto para finalizar a venda')
     }
   // } else {
   //   // console.log(user.authenticate)
