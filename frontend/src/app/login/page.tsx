@@ -1,4 +1,3 @@
-// 'use client'
 "use client"
 
 import { signIn } from "next-auth/react";
@@ -32,7 +31,7 @@ export default  function LoginForm() {
       const body = await response.json()
   
       setTokenSession(body)
-      
+
       route.push('/')
     }
 

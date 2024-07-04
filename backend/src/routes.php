@@ -31,7 +31,8 @@ $app->group('/sells', function (RouteCollectorProxy $group) {
     $group->get('', \App\Controllers\SellsController::class . ':getAll');
     $group->post('', \App\Controllers\SellsController::class . ':create');
     // $group->get('/{id}', \App\Controllers\SellsController::class . ':show');
-})->add(AuthMiddleware::class);
+// })->add(AuthMiddleware::class);
+});
 
 $app->group('/products-to-show', function (RouteCollectorProxy $group) {
     $group->get('', \App\Controllers\ProductsController::class . ':getAllProductsToShow');

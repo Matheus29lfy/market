@@ -66,15 +66,23 @@ const ProductPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <Link href="/type-product" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block"> 
-          Ver Tipos de Produtos
-      </Link>
-   
-      <Link href="/taxes" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block"> 
-          Ver impostos
-      </Link>
-
       <h1 className="text-2xl font-bold mb-4">Produtos</h1>
+
+       <div className="mb-4">
+            <Link href="/type-product" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
+                Ver Tipos de Produtos
+            </Link>
+            <Link href="/sells" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
+                Ver Vendas
+            </Link>
+            <Link href="/taxes" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
+                Ver Impostos
+            </Link>
+            <Link href="/" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
+                 Home
+            </Link>
+        </div>
+
        <button
         onClick={openModal}
         className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-4"

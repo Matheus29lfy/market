@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { toast } from 'react-toastify';
-import { useAuth } from '../contexts/AuthContext';
+// import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { getTokenSession } from '../lib';
 interface Product {
@@ -113,7 +113,7 @@ const HomePage: React.FC = () => {
   const handleCheckout = async () => {
     
   
-    if (user && user.authenticate) {
+    // if (user && user.authenticate) {
 
     //   console.log(user.authenticate)
     // return
@@ -124,6 +124,7 @@ const HomePage: React.FC = () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        user_id:1,//Estou vendo para implementar a parte de login
         product_id: cart.map(item => item.id),
         quantity: cart.map(item => item.quantity),
         total_no_tax: totalNoTax,
@@ -132,28 +133,29 @@ const HomePage: React.FC = () => {
     });
 
     if (response.ok) {
-      setCart([]);
       toast.success('Venda realizada com sucesso');
+
+      setCart([]);
     } else {
       toast.error('Erro ao realizar venda');
     }
-  } else {
-    console.log(user.authenticate)
-    return
-    // Redirecionar para a página de login se não estiver autenticado
-    router.push('/login');
-  }
+  // } else {
+  //   // console.log(user.authenticate)
+  //   return
+  //   // Redirecionar para a página de login se não estiver autenticado
+  //   router.push('/login');
+  // }
   };
 
   const { totalNoTax, totalWithTaxes } = calculateTotal();
 
   return (
     <div className="container mx-auto p-4">
-      <div className="flex justify-end mb-4">
+      {/* <div className="flex justify-end mb-4">
           <Link  href="/login" className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
             Login
           </Link>
-      </div>
+      </div> */}
       <h1 className="text-2xl font-bold mb-4">Produtos</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {products.map(product => (
@@ -201,10 +203,21 @@ const HomePage: React.FC = () => {
       <button onClick={handleCheckout} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4">
         Finalizar Compra
       </button>
-      <Link href="/type-product" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 inline-block">
-        Ver Tipos de Produtos
-      </Link>
-    </div>
+      <div className="mt-4">
+        <Link href="/type-product" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
+            Ver Tipos de Produtos
+        </Link>
+        <Link href="/sells" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
+            Ver Vendas
+        </Link>
+        <Link href="/products" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">  
+            Ver Produtos
+        </Link>
+        <Link href="/taxes" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
+            Ver Impostos
+        </Link>
+      </div>
+      </div>
   );
 };
 
