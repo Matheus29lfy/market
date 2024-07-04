@@ -2,8 +2,8 @@ Pré requisitos-
 Download and Instale Docker
 
 Clone esse template para seu projeto
-git clone  https://github.com/Matheus29lfy/market.git
-Acesse a pasta cd backend
+git clone https://github.com/Matheus29lfy/loja-api.git
+Acesse a pasta cd api-market
 Rode App Manualmente
 Crie um arquivo .env para o ambiente PHP a partir do .env.example na raiz
 e rode "composer install"
