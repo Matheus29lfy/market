@@ -87,7 +87,7 @@ const ProductPage: React.FC = () => {
         onClick={openModal}
         className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-4"
       >
-        Create Product
+        Adicionar Produto
       </button>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {products.map((product) => (

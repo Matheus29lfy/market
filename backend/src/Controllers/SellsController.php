@@ -91,22 +91,27 @@ class SellsController {
                 return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
             }
         }
+        try {
 
-        // Verifica se os arrays têm mais de um elemento
-        if (count($sell['product_id']) > 1) {
-            // Insere em lote
-            $sellReturn = $this->sellsService->insertBatch($sell);
-            $responseQuantityProduct = $this->productsService->updateQuantityBatch($sell['product_id'], $sell['quantity']);
-        } else {
-            $sellReturn = $this->sellsService->insertSingle($sell);
-            $responseQuantityProduct = $this->productsService->updateQuantitySingle($sell['product_id'][0], $sell['quantity'][0]);
-        }
+            // Verifica se os arrays têm mais de um elemento
+            if (count($sell['product_id']) > 1) {
+                // Insere em lote
+                $sellReturn = $this->sellsService->insertBatch($sell);
+                $responseQuantityProduct = $this->productsService->updateQuantityBatch($sell['product_id'], $sell['quantity']);
+            } else {
+                $sellReturn = $this->sellsService->insertSingle($sell);
+                $responseQuantityProduct = $this->productsService->updateQuantitySingle($sell['product_id'][0], $sell['quantity'][0]);
+            }
 
-        if ($sellReturn && $responseQuantityProduct) {
-            $response->getBody()->write(json_encode(['message' => 'Venda salva com sucesso!']));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
-        } else {
-            $response->getBody()->write(json_encode(['message' => 'Erro ao salvar venda.']));
+            if ($sellReturn && $responseQuantityProduct) {
+                $response->getBody()->write(json_encode(['message' => 'Venda salva com sucesso!']));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+            } else {
+                $response->getBody()->write(json_encode(['message' => 'Erro ao salvar venda.']));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+            }
+        } catch (\Exception $exception) {
+            $response->getBody()->write(json_encode(['message' => $exception->getMessage()]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
     }

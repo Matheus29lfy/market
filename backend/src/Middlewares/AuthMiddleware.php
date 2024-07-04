@@ -38,9 +38,6 @@ class AuthMiddleware {
             return $handler->handle($request);
         } catch (\Exception $e) {
            
-            var_dump('erro:');
-            var_dump($e->getMessage());
-            die();
             $response->getBody()->write(json_encode(['message' => 'Invalid token']));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
         }

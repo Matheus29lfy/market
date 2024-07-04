@@ -54,6 +54,12 @@ export function getTokenSession():any {
   return initialState
 }
 
+export function isNumeric(str: unknown): boolean {
+  if (typeof str !== "string") return false; // processamos apenas strings
+   return !isNaN(Number(str)) && // use coerção de tipo para analisar a totalidade da string
+         !isNaN(parseFloat(str)); // e assegure-se de que strings de espaços em branco falhem
+}
+
 // export function getStorageValue(defaultValue) {
 //   // getting stored value
 //   const saved = localStorage.getItem("token");

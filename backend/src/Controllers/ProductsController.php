@@ -88,13 +88,19 @@ class ProductsController {
             }
         }
      
-        $productReturn = $this->productsService->insert($product);
+        try {
+     
+            $productReturn = $this->productsService->insert($product);
 
-        if ($productReturn) {
-            $response->getBody()->write(json_encode(['message' => 'Produto inserido com sucesso!']));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
-        } else {
-            $response->getBody()->write(json_encode(['message' => 'Erro ao inserir produto.']));
+            if ($productReturn) {
+                $response->getBody()->write(json_encode(['message' => 'Produto inserido com sucesso!']));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+            } else {
+                $response->getBody()->write(json_encode(['message' => 'Erro ao inserir produto.']));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+            }
+        } catch (\Exception $exception) {
+            $response->getBody()->write(json_encode(['message' => $exception->getMessage()]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
     }

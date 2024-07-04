@@ -2,6 +2,9 @@
 
 import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment, useState, useEffect } from 'react';
+import { Notyf } from 'notyf';
+import 'notyf/notyf.min.css';
+import { isNumeric } from '../lib';
 
 interface ProductType {
   id: number;
@@ -21,10 +24,15 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
   const [quantity, setQuantity] = useState('');
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const notyf = new Notyf();
 
-  useEffect(() => {
-    fetchProductTypes();
-  }, []);
+
+  const clearInput = () =>{
+    setName('')
+    setPrice('')
+    setProductTypeId('')
+    setQuantity('')
+  }
 
   const fetchProductTypes = async () => {
     try {
@@ -41,20 +49,49 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
       setProductTypes(data.type_product);
       setIsLoading(false);
     } catch (error) {
-      console.error('Erro ao buscar tipos de produto:', error);
+      notyf.error("Erro ao buscar tipos de produto")
       setIsLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchProductTypes();
+    if(!isOpen){
+      clearInput()
+    }
+  }, [isOpen])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const validPrice =  isNumeric(price)
+    const validQuantity =  isNumeric(quantity)
 
+    if(!validPrice){
+      notyf.error("O valor do preço é inválido")
+      return
+    }
+
+    if(!validQuantity){
+      notyf.error("O valor da quantidade é inválido")
+      return
+     }
+
+  
     const product = {
       name,
       price: parseFloat(price),
       quantity: parseInt(quantity, 10),
       type_category_id: parseInt(productTypeId),
     };
+ 
+    if(product.price <= 0){
+      notyf.error("O valor do preço deve ser maior que 0")
+      return
+    }
+    if(product.quantity <= 0){
+      notyf.error("O valor da quantidade deve ser maior que 0")
+      return
+     }
 
     const response = await fetch('http://localhost:8080/products', {
       method: 'POST',
@@ -68,11 +105,8 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
     if (response.ok) {
       closeModal();
       addedProduct();
-
-      setName('')
-      setPrice('')
-      setProductTypeId('')
-      setQuantity('')
+      clearInput()
+      notyf.success('Produto cadastrado com sucesso')
     } else {
       // Handle errors here
       console.error('Failed to create product');
@@ -108,7 +142,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
             <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
               <div className="flex justify-between items-center">
                 <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
-                  Create Product
+                  Criar Produto
                 </Dialog.Title>
                 <button
                   type="button"
@@ -130,7 +164,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
               <form onSubmit={handleSubmit} className="mt-4">
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-                    Name
+                    Nome
                   </label>
                   <input
                     type="text"
@@ -143,7 +177,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
                 </div>
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="productType">
-                    Product Type
+                    Tipo do Produto
                   </label>
                   <select
                     id="productType"
@@ -152,7 +186,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     required
                   >
-                    <option value="">Select Product Type</option>
+                    <option value="">Selecione o Tipo de Produto</option>
                     {productTypes.map((type) => (
                       <option key={type.id} value={type.id}>{type.name}</option>
                     ))}
@@ -160,7 +194,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
                 </div>
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="price">
-                    Price
+                    Preço
                   </label>
                   <input
                     type="text"
@@ -174,7 +208,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
                 </div>
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="quantity">
-                    Quantity
+                    Quantidade
                   </label>
                   <input
                     type="text"
@@ -191,7 +225,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
                     type="submit"
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                   >
-                    Create
+                    Salvar
                   </button>
 
                   <button
@@ -199,7 +233,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
                     className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                     onClick={closeModal}
                   >
-                    Cancel
+                    Cancelar
                   </button>
              
                 </div>

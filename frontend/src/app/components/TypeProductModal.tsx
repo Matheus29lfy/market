@@ -1,8 +1,9 @@
 "use client"; 
 
 import { Dialog, Transition } from '@headlessui/react';
-import React, { Fragment, useState } from 'react';
-
+import React, { Fragment, useEffect, useState } from 'react';
+import { Notyf } from 'notyf';
+import 'notyf/notyf.min.css';
 interface TypeProductModalProps {
   isOpen: boolean;
   closeModal: () => void;
@@ -11,6 +12,13 @@ interface TypeProductModalProps {
 
 const TypeProductModal: React.FC<TypeProductModalProps> = ({ isOpen, closeModal, addedTypeProduct }) => {
   const [name, setName] = useState('');
+  const notyf = new Notyf();
+
+  useEffect(()=>{
+    if(!isOpen){
+      setName('')
+    }
+  },[isOpen])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,8 +39,9 @@ const TypeProductModal: React.FC<TypeProductModalProps> = ({ isOpen, closeModal,
       closeModal();
       addedTypeProduct();
       setName('');
+      notyf.success("Tipo de produto salvo")
     } else {
-      console.error('Failed to create type product');
+      notyf.error("Erro ao buscar tipos de produto")
     }
   };
 
