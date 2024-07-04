@@ -1,7 +1,7 @@
-#Pré requisitos
+# Pré requisitos
 - Download and Instale Docker
 
-#Backend
+# Backend
 - Clone esse template para seu projeto
 - git clone https://github.com/Matheus29lfy/loja-api.git
 - Acesse a pasta cd backend
@@ -24,7 +24,7 @@
 
 *Há um DUMP com as tabelas que serão necessárias
 
-#Frontend
+# Frontend
 - Acesse a pasta cd frontend
 - Rode npm i
 - Rode o servidor npm run
