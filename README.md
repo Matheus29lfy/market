@@ -1,9 +1,10 @@
-- Pré requisitos-
+#Pré requisitos
 - Download and Instale Docker
 
+#Backend
 - Clone esse template para seu projeto
 - git clone https://github.com/Matheus29lfy/loja-api.git
-- Acesse a pasta cd api-market
+- Acesse a pasta cd backend
 - Rode App Manualmente
 - Crie um arquivo .env para o ambiente PHP a partir do .env.example na raiz
 - e rode "composer install"
@@ -20,3 +21,10 @@
 - Para rodar os testes executar comando vendor/bin/phpunit
 - Para acessar o swagger
 - Nota: Se você encontrar um erro de permissão ao executar o Docker, tente executá-lo como administrador ou use sudo no Linux.
+
+*Há um DUMP com as tabelas que serão necessárias
+
+#Frontend
+- Acesse a pasta cd frontend
+- Rode npm i
+- Rode o servidor npm run
