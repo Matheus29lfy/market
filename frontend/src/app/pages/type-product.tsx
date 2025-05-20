@@ -56,7 +56,7 @@ const TypeProductPage: React.FC = () => {
           </li>
         ))}
       </ul>
-      <TypeProductModal isOpen={isModalOpen} closeModal={closeModal} />
+      {/* <TypeProductModal isOpen={isModalOpen} closeModal={closeModal} /> */}
     </div>
   );
 };

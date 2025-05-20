@@ -1,6 +1,14 @@
+// src/app/layout.tsx
+
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+
+// --- NOVAS IMPORTAÇÕES ---
+import { ToastContainer } from 'react-toastify'; // Importe o ToastContainer
+import 'react-toastify/dist/ReactToastify.css'; // Importe o CSS do React-Toastify
+// --- FIM NOVAS IMPORTAÇÕES ---
+
 import NextAuthSessionProvider from "@/providers/sessionProvider";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -18,7 +26,21 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-      <NextAuthSessionProvider>{children}</NextAuthSessionProvider>
+        <NextAuthSessionProvider>
+          {children}
+        </NextAuthSessionProvider>
+        <ToastContainer
+          position="top-right" // Posição da notificação na tela
+          autoClose={500}    // Fecha automaticamente após 5 segundos
+          hideProgressBar={false} // Mostra a barra de progresso do tempo
+          newestOnTop={false}   // Notificações mais novas aparecem por baixo das antigas
+          closeOnClick        // Fecha a notificação ao clicar nela
+          rtl={false}         // Suporte a idiomas da direita para a esquerda (manter false para português)
+          pauseOnFocusLoss    // Pausa o contador se a janela perder o foco
+          draggable           // Permite arrastar a notificação
+          pauseOnHover        // Pausa o contador ao passar o mouse sobre a notificação
+          theme="light"       // Tema visual (pode ser "dark" ou "colored" também)
+        />
       </body>
     </html>
   );
