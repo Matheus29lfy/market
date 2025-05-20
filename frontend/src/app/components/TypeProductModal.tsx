@@ -1,24 +1,27 @@
-"use client"; 
+// src/app/pages/TypeProductModal.tsx
+"use client";
 
+// Importações atualizadas:
 import { Dialog, Transition } from '@headlessui/react';
+// Não precisamos mais de DialogPanel, DialogOverlay, DialogTitle exportados separadamente
+// mas sim como subcomponentes de Dialog
 import React, { Fragment, useEffect, useState } from 'react';
-import { Notyf } from 'notyf';
-import 'notyf/notyf.min.css';
+import { toast } from 'react-toastify';
+
 interface TypeProductModalProps {
   isOpen: boolean;
   closeModal: () => void;
-  addedTypeProduct:() =>void;
+  addedTypeProduct: () => void;
 }
 
 const TypeProductModal: React.FC<TypeProductModalProps> = ({ isOpen, closeModal, addedTypeProduct }) => {
   const [name, setName] = useState('');
-  const notyf = new Notyf();
 
-  useEffect(()=>{
-    if(!isOpen){
-      setName('')
+  useEffect(() => {
+    if (!isOpen) {
+      setName('');
     }
-  },[isOpen])
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,21 +30,26 @@ const TypeProductModal: React.FC<TypeProductModalProps> = ({ isOpen, closeModal,
       name,
     };
 
-    const response = await fetch('http://localhost:8080/type-product', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(typeProduct),
-    });
+    try {
+      const response = await fetch('http://localhost:8080/type-product', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(typeProduct),
+      });
 
-    if (response.ok) {
-      closeModal();
-      addedTypeProduct();
-      setName('');
-      notyf.success("Tipo de produto salvo")
-    } else {
-      notyf.error("Erro ao buscar tipos de produto")
+      if (response.ok) {
+        closeModal();
+        addedTypeProduct();
+        setName('');
+        toast.success("Tipo de produto salvo com sucesso!");
+      } else {
+        const errorData = await response.json();
+        toast.error(`Erro ao salvar tipo de produto: ${errorData.message || 'Erro desconhecido'}`);
+      }
+    } catch (error) {
+      toast.error("Ocorreu um erro inesperado ao salvar o tipo de produto.");
     }
   };
 
@@ -49,6 +57,8 @@ const TypeProductModal: React.FC<TypeProductModalProps> = ({ isOpen, closeModal,
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" onClose={closeModal}>
         <div className="min-h-screen px-4 text-center">
+
+          {/*@ts-expect-error: Transition.Child is deprecated but still required for individual animation steps*/}
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -58,10 +68,13 @@ const TypeProductModal: React.FC<TypeProductModalProps> = ({ isOpen, closeModal,
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-black bg-opacity-25" aria-hidden="true" />
+          <div className="fixed inset-0 bg-black bg-opacity-25" />
           </Transition.Child>
 
+          {/* Isso centraliza o conteúdo do modal */}
           <span className="inline-block h-screen align-middle" aria-hidden="true">&#8203;</span>
+
+          {/* Painel do modal - De volta ao uso de Transition.Child com Dialog.Panel dentro */}
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -71,8 +84,10 @@ const TypeProductModal: React.FC<TypeProductModalProps> = ({ isOpen, closeModal,
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+            {/* O Dialog.Panel é usado para o conteúdo do modal */}
+            <Dialog.Panel className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
               <div className="flex justify-between items-center">
+                {/* Dialog.Title ainda é um subcomponente */}
                 <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
                   Criar Tipo de Produto
                 </Dialog.Title>
@@ -123,7 +138,7 @@ const TypeProductModal: React.FC<TypeProductModalProps> = ({ isOpen, closeModal,
                   </button>
                 </div>
               </form>
-            </div>
+            </Dialog.Panel>
           </Transition.Child>
         </div>
       </Dialog>

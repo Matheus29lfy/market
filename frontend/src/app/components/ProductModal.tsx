@@ -2,8 +2,9 @@
 
 import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment, useState, useEffect } from 'react';
-import { Notyf } from 'notyf';
-import 'notyf/notyf.min.css';
+import { toast } from 'react-toastify';
+// import { Notyf } from 'notyf';
+// import 'notyf/notyf.min.css';
 import { isNumeric } from '../lib';
 
 interface ProductType {
@@ -24,7 +25,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
   const [quantity, setQuantity] = useState('');
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const notyf = new Notyf();
+  // const notyf = new Notyf();
 
 
   const clearInput = () =>{
@@ -49,7 +50,8 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
       setProductTypes(data.type_product);
       setIsLoading(false);
     } catch (error) {
-      notyf.error("Erro ao buscar tipos de produto")
+      // notyf.error("Erro ao buscar tipos de produto")
+       toast.error("Erro ao buscar tipos de produto")
       setIsLoading(false);
     }
   };
@@ -67,12 +69,12 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
     const validQuantity =  isNumeric(quantity)
 
     if(!validPrice){
-      notyf.error("O valor do preço é inválido")
+       toast.error("Erro ao buscar tipos de produto")
       return
     }
 
     if(!validQuantity){
-      notyf.error("O valor da quantidade é inválido")
+       toast.error("Erro ao buscar tipos de produto")
       return
      }
 
@@ -85,11 +87,11 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
     };
  
     if(product.price <= 0){
-      notyf.error("O valor do preço deve ser maior que 0")
+       toast.error("O valor do preço deve ser maior que 0")
       return
     }
     if(product.quantity <= 0){
-      notyf.error("O valor da quantidade deve ser maior que 0")
+     toast.error("O valor da quantidade deve ser maior que 0")
       return
      }
 
@@ -106,7 +108,8 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
       closeModal();
       addedProduct();
       clearInput()
-      notyf.success('Produto cadastrado com sucesso')
+     toast.success("Cadastrado com sucesso")
+
     } else {
       // Handle errors here
       console.error('Failed to create product');

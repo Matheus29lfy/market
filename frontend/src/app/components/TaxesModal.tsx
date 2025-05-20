@@ -2,8 +2,9 @@
 
 import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment, useEffect, useState } from 'react';
-import { Notyf } from 'notyf';
-import 'notyf/notyf.min.css';
+// import { Notyf } from 'notyf';
+// import 'notyf/notyf.min.css';
+import { toast } from 'react-toastify';
 import { isNumeric } from '../lib';
 
 interface ProductType {
@@ -22,7 +23,7 @@ const TaxesModal: React.FC<TaxesModalProps> = ({ isOpen, closeModal, addedTaxes 
   const [typeProductId, setTypeProductId] = useState('');
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const notyf = new Notyf();
+  // const notyf = new Notyf();
 
   const clearInput = () =>{
     setTaxPercentage('')
@@ -46,7 +47,8 @@ const TaxesModal: React.FC<TaxesModalProps> = ({ isOpen, closeModal, addedTaxes 
         setIsLoading(false);
       } catch (error) {
         console.error('Erro ao buscar tipos de produto:', error);
-        notyf.error("Erro ao buscar tipos de produto")
+        // notyf.error("Erro ao buscar tipos de produto")
+       toast.error("Erro ao buscar tipos de produto")
         setIsLoading(false);
       }
     };
@@ -66,7 +68,8 @@ const TaxesModal: React.FC<TaxesModalProps> = ({ isOpen, closeModal, addedTaxes 
     const validTaxPercentage = isNumeric(taxPercentage)
 
     if(!validTaxPercentage){
-      notyf.error("O valor da taxa é inválido")
+      // notyf.error("O valor da taxa é inválido")
+       toast.error("Erro ao buscar tipos de produto")
       return
     }
 
@@ -76,8 +79,8 @@ const TaxesModal: React.FC<TaxesModalProps> = ({ isOpen, closeModal, addedTaxes 
     };
 
     if(taxProduct.tax_percentage <= 0 || taxProduct.tax_percentage >= 100){
-      notyf.error("O valor da taxa do imposto deve ser maior que 0 e menor que 100")
-      return
+       toast.error("O valor da taxa do imposto deve ser maior que 0 e menor que 100")
+       return
     }
     const response = await fetch('http://localhost:8080/taxes', {
       method: 'POST',
@@ -91,9 +94,9 @@ const TaxesModal: React.FC<TaxesModalProps> = ({ isOpen, closeModal, addedTaxes 
       closeModal();
       addedTaxes();
       clearInput()
-      notyf.success("Imposto criado com sucesso")
+     toast.success("Imposto criado com sucesso")
     } else {
-      notyf.error("Falha ao criar tipo de imposto")
+     toast.success("Falha ao criar tipo de imposto")
     }
   };
 
