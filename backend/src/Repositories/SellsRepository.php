@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Database\Connection;
+use PDOException;
 
 class SellsRepository {
     private $db;
@@ -12,19 +13,34 @@ class SellsRepository {
     }
 
     public function getAll() {
-        $stmt = $this->db->query('
+        try {
+            $stmt = $this->db->query('
             SELECT 
                 s.id, s.total_no_tax, s.total_with_taxes, s.user_id, u.username, s.created_at,
-                si.product_id, p.name, si.quantity
+                sp.product_id, p.name, sp.quantity
             FROM sells s
             LEFT JOIN users u ON u.id = s.user_id
-            LEFT JOIN sell_items si ON si.sell_id = s.id
-            LEFT JOIN products p ON p.id = si.product_id
+            LEFT JOIN sell_products sp ON sp.sell_id = s.id
+            LEFT JOIN products p ON p.id = sp.product_id
         ');
 
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+         return  $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        
+        // // Verifica se há resultados
+        // if (empty($result)) {
+        //     throw new \RuntimeException('Erro ao buscar vendas. Por favor, tente novamente mais tarde', 400);
+        // }
+        
+        // return $result;
+        }catch (PDOException $e) {
+            // Log do erro (opcional)
+            error_log('Database error: ' . $e->getMessage());
+            
+            // Lança uma exceção personalizada ou retorna um array de erro
+            throw new \RuntimeException('Erro ao buscar vendas. Por favor, tente novamente mais tarde.');
+        }
     }
-
+    
     public function insertSingle($sell): bool {
         try {
             $this->db->beginTransaction();

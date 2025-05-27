@@ -8,12 +8,27 @@ class  SellsService{
   public function __construct(SellsRepository $sellsRepository ) {
     $this->sellsRepository = $sellsRepository;
   }
-  public function getAll()
-  {
-     $sells = $this->sellsRepository->getAll();
-     $result  =  $this->convertValueFloat($sells);
-     return $this->groupSells($result);
-  }
+public function getAll() {
+        try {
+            $sells = $this->sellsRepository->getAll();
+            
+            $result = $this->convertValueFloat($sells);
+            $grouped = $this->groupSells($result);
+            
+            if (empty($grouped)) {
+                throw new \RuntimeException('Nenhuma venda encontrada', 400);
+            }
+            
+            return $grouped;
+            
+        } catch (\RuntimeException $e) {
+            // Repassa exceções com código 400
+            if ($e->getCode() === 400) {
+                throw $e;
+            }
+            throw new \RuntimeException('Erro ao processar vendas', 500);
+        }
+    }
 
   public function insertSingle($sell)
   {

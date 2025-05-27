@@ -7,8 +7,8 @@ use PDOException;
 class Connection {
     private $pdo;
 
-    public function __construct($config) {
-        try {
+    public function __construct($config) { 
+         try {
           $dsn = "pgsql:host={$config['host']};port={$config['port']};dbname={$config['database']}";
           $this->pdo = new PDO($dsn,$config['username'], $config['password']);
           $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

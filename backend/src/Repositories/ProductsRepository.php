@@ -14,7 +14,7 @@ class ProductsRepository{
  
   public function getAll()
   {
-    $stmt = $this->db->query('SELECT * FROM products WHERE quantity > 0');
+    $stmt = $this->db->query('SELECT * FROM products');
  
     return $stmt->fetchAll(\PDO::FETCH_ASSOC);
   }
