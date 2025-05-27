@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import SellItem from '../components/SellItem';
 import Link from 'next/link';
+import { toast } from 'react-toastify';
 
 interface Product {
   product_id: number;
@@ -22,9 +23,29 @@ interface Sell {
 }
 
 const fetchSells = async (): Promise<Sell[]> => {
-  const res = await fetch('http://localhost:8080/sells');
-  const data = await res.json();
-  return data.sells;
+try {
+    const response = await fetch('http://localhost:8080/sells');
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Erro ao carregar vendas');
+    }
+    
+    const data = await response.json();
+    return data.sells;
+    
+  } catch (error) {
+ if (error instanceof Error) {
+      console.error('Erro na requisição:', error.message);
+      // Mostrar para o usuário (usando seu sistema de notificação)
+      toast.error(error.message);
+    } else {
+      console.error('Erro desconhecido:', error);
+      toast.error('Ocorreu um erro inesperado');
+    }
+    
+    return []; // Retorno vazio ou pode lançar o erro novamente
+  }
 };
 
 const SellsPage: React.FC = () => {

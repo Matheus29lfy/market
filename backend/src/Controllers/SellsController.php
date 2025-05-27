@@ -9,7 +9,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 /**
  * @OA\PathItem(path="/sells")
  */
-class SellsController {
+class   SellsController {
     protected $sellsService;
     protected $productsService;
 
@@ -18,26 +18,60 @@ class SellsController {
         $this->productsService = $productsService;
     }
 
-    /**
-     * @OA\Get(
-     *     path="/sells",
-     *     summary="Get all sells",
-     *     @OA\Response(
-     *         response=200,
-     *         description="List of sells",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="sells", type="array", @OA\Items(type="object"))
-     *         )
-     *     )
-     * )
-     */
-    public function getAll(Request $request, Response $response, $args) {
+ /**
+ * @OA\Get(
+ *     path="/sells",
+ *     summary="Get all sells",
+ *     @OA\Response(
+ *         response=200,
+ *         description="List of sells",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="sells", type="array", @OA\Items(type="object"))
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="No sells found or table doesn't exist",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="error", type="string", example="Nenhuma venda encontrada"),
+ *             @OA\Property(property="status", type="integer", example=400)
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal server error",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="error", type="string", example="Erro ao buscar vendas"),
+ *             @OA\Property(property="status", type="integer", example=500)
+ *         )
+ *     )
+ * )
+ */
+public function getAll(Request $request, Response $response, $args) {
+    try {
         $sells = $this->sellsService->getAll();
-        $sellsResponse = ["sells" => $sells];
-        $response->getBody()->write(json_encode($sellsResponse));
-        return $response->withHeader('Content-Type', 'application/json');
+        $response->getBody()->write(json_encode(['sells' => $sells]));
+        
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(200);
+            
+    } catch (\RuntimeException $e) {
+        $statusCode = $e->getCode() === 400 ? 400 : 500;
+        
+        $response->getBody()->write(json_encode([
+            'error' => $e->getMessage(),
+            'status' => $statusCode
+        ]));
+        
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus($statusCode);
     }
+}
 
     /**
      * @OA\Post(

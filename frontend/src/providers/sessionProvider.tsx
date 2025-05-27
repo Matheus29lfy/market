@@ -1,12 +1,24 @@
-'use client'
+// frontend/src/providers/sessionProvider.tsx
+'use client';
 
-import { ReactNode } from "react";
-import { SessionProvider } from 'next-auth/react'
+import * as React from "react";
+import { NextUIProvider } from "@nextui-org/react";
+import { useRouter } from 'next/navigation';
 
-interface NextAuthSessionProviderProps {
-	children: ReactNode
-}
+// Se este provedor também lida com o NextAuth, você precisará importar e usar
+// o SessionProvider do next-auth/react aqui, envolvendo o NextUIProvider.
+// Ex: import { SessionProvider } from 'next-auth/react';
 
-export default function NextAuthSessionProvider({children}: NextAuthSessionProviderProps){
-	return <SessionProvider>{children}</SessionProvider>
+// Mude de 'export function' para 'export default function'
+export default function NextAuthSessionProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+
+  return (
+    // Aqui você envolveria com o SessionProvider do NextAuth, se aplicável
+    // Ex: <SessionProvider>
+      <NextUIProvider navigate={router.push}>
+        {children}
+      </NextUIProvider>
+    // Ex: </SessionProvider>
+  );
 }

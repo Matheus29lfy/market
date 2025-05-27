@@ -1,4 +1,3 @@
-version: '4.27.2'
 services:
   api-market:
     image: bitnami/postgresql

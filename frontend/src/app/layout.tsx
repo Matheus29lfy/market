@@ -1,13 +1,10 @@
 // src/app/layout.tsx
-
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
 
-// --- NOVAS IMPORTAÇÕES ---
-import { ToastContainer } from 'react-toastify'; // Importe o ToastContainer
-import 'react-toastify/dist/ReactToastify.css'; // Importe o CSS do React-Toastify
-// --- FIM NOVAS IMPORTAÇÕES ---
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // <--- Descomente esta linha!
+import "./globals.css";
 
 import NextAuthSessionProvider from "@/providers/sessionProvider";
 
@@ -30,16 +27,16 @@ export default function RootLayout({
           {children}
         </NextAuthSessionProvider>
         <ToastContainer
-          position="top-right" // Posição da notificação na tela
-          autoClose={500}    // Fecha automaticamente após 5 segundos
-          hideProgressBar={false} // Mostra a barra de progresso do tempo
-          newestOnTop={false}   // Notificações mais novas aparecem por baixo das antigas
-          closeOnClick        // Fecha a notificação ao clicar nela
-          rtl={false}         // Suporte a idiomas da direita para a esquerda (manter false para português)
-          pauseOnFocusLoss    // Pausa o contador se a janela perder o foco
-          draggable           // Permite arrastar a notificação
-          pauseOnHover        // Pausa o contador ao passar o mouse sobre a notificação
-          theme="light"       // Tema visual (pode ser "dark" ou "colored" também)
+          position="top-right"
+          autoClose={500}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
         />
       </body>
     </html>
