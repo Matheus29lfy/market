@@ -91,7 +91,7 @@ const TaxesModal: React.FC<TaxesModalProps> = ({ isOpen, closeModal, addedTaxes 
       clearInput()
      toast.success("Imposto criado com sucesso")
     } else {
-     toast.success("Falha ao criar tipo de imposto")
+     toast.error("Falha ao criar tipo de imposto")
     }
   };
 
