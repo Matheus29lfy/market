@@ -13,8 +13,8 @@ class TaxesRepository{
   public function getAll()
   {
     try {
-         $stmt = $this->db->query('SELECT t.id, t.type_category_id, tp.name, t.tax_percentage FROM taxes t 
-                              LEFT JOIN type_products tp on tp.id = t.type_category_id
+         $stmt = $this->db->query('SELECT t.id, t.type_product_id, tp.name, t.tax_percentage FROM taxes t 
+                              LEFT JOIN type_products tp on tp.id = t.type_product_id
                             ');
  
           return $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -37,7 +37,8 @@ class TaxesRepository{
         return true;
       };
     } catch (\Exception $exception) {
-        throw new \Exception('Erro ao inserir: ' . $exception->getMessage());
+         error_log('Database Taxes error: ' . $exception->getMessage());
+         throw new \Exception('Erro ao inserir novo imposto');
     }
     return false;
   }

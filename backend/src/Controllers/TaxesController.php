@@ -131,7 +131,7 @@ class TaxesController {
                 return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
             }
         } catch (\Exception $exception) {
-            $response->getBody()->write(json_encode(['message' => $exception->getMessage()]));
+            $response->getBody()->write(json_encode(['message' => 'Erro ao inserir Imposto.']));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
         
