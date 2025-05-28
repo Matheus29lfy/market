@@ -10,8 +10,24 @@ class  TaxesService{
   }
   public function getAll()
   {
-     $taxes =  $this->taxesRepository->getAll();
-     return $this->convertValueFloat($taxes);
+      try {
+            $taxes = $this->taxesRepository->getAll();
+            
+            $result = $this->convertValueFloat($taxes);
+
+            if (empty($result)) {
+                throw new \RuntimeException('Nenhum imposto encontrado', 400);
+            }
+            
+            return $result;
+            
+        } catch (\RuntimeException $e) {
+            // Repassa exceções com código 400
+            if ($e->getCode() === 400) {
+                throw $e;
+            }
+            throw new \RuntimeException('Erro ao processar imposto', 500);
+        }
   }
 
   public function insert($taxes)

@@ -12,11 +12,17 @@ class TaxesRepository{
   }
   public function getAll()
   {
-    $stmt = $this->db->query('SELECT t.id, t.type_product_id, tp.name, t.tax_percentage FROM taxes t 
-                              LEFT JOIN type_product tp on tp.id = t.type_product_id
+    try {
+         $stmt = $this->db->query('SELECT t.id, t.type_category_id, tp.name, t.tax_percentage FROM taxes t 
+                              LEFT JOIN type_products tp on tp.id = t.type_category_id
                             ');
  
-    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+          return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    } catch (\PDOException $e) {
+            error_log('Database Taxes error: ' . $e->getMessage());
+            throw new \RuntimeException('Erro ao buscar Impostos. Por favor, tente novamente mais tarde.');
+    }
+
   }
 
   public function insert($taxes):bool
