@@ -1,2 +1,13 @@
-/vendor
-env
+# Ignorar vendor em qualquer lugar (não apenas na raiz)
+vendor/
+src/vendor/
+
+# Ignorar configurações do VS Code
+.vscode/
+
+# Ignorar arquivos de ambiente
+.env
+.env.local
+
+# Ignorar arquivos de pacote do Debian (como o .deb listado)
+*.deb
