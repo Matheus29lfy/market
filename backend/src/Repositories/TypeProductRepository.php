@@ -33,7 +33,7 @@ class TypeProductRepository{
           return true;
         }
     } catch (\PDOException $e) {
-           error_log('Database Taxes error: ' . $e->getMessage());
+          error_log('Database Taxes error: ' . $e->getMessage());
           throw new \Exception('Erro ao inserir: Tipo de imposto');
     }
     return false;
