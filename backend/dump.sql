@@ -27,7 +27,6 @@ CREATE TABLE products (
 CREATE TABLE taxes (
     id SERIAL PRIMARY KEY,
     type_category_id INTEGER REFERENCES type_products(id),
-    name VARCHAR(255) NOT NULL,
     tax_percentage DECIMAL(5, 2) NOT NULL
 );
 
