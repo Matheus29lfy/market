@@ -83,7 +83,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
       name,
       price: parseFloat(price),
       quantity: parseInt(quantity, 10),
-      type_category_id: parseInt(productTypeId),
+      type_product_id: parseInt(productTypeId),
     };
  
     if(product.price <= 0){
