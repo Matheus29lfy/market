@@ -25,7 +25,7 @@ class TypeProductRepository{
   public function insert($typeProduct):bool
   {
     try {
-        $sql = "INSERT INTO type_product (name) VALUES (:name)";
+        $sql = "INSERT INTO type_products (name) VALUES (:name)";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':name', $typeProduct['name']);
  
@@ -33,7 +33,8 @@ class TypeProductRepository{
           return true;
         }
     } catch (\PDOException $e) {
-          throw new \Exception('Erro ao inserir: ' . $e->getMessage());
+           error_log('Database Taxes error: ' . $e->getMessage());
+          throw new \Exception('Erro ao inserir: Tipo de imposto');
     }
     return false;
   }
