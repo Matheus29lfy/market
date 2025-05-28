@@ -25,18 +25,8 @@ class SellsRepository {
         ');
 
          return  $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        // // Verifica se há resultados
-        // if (empty($result)) {
-        //     throw new \RuntimeException('Erro ao buscar vendas. Por favor, tente novamente mais tarde', 400);
-        // }
-        
-        // return $result;
         }catch (PDOException $e) {
-            // Log do erro (opcional)
             error_log('Database error: ' . $e->getMessage());
-            
-            // Lança uma exceção personalizada ou retorna um array de erro
             throw new \RuntimeException('Erro ao buscar vendas. Por favor, tente novamente mais tarde.');
         }
     }
