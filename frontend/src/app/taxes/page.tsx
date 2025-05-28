@@ -10,7 +10,7 @@ interface Taxes {
     id: number,
     type_category_id: number,
     name: string,
-    tax_percentage: number
+    tax_percentage: number  
 }
 
 interface ApiError {
