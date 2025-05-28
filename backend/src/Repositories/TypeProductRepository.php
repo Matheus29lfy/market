@@ -12,22 +12,30 @@ class TypeProductRepository{
     }
   public function getAll()
   {
-    $stmt = $this->db->query('SELECT * FROM type_product');
- 
-    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    try {
+          $stmt = $this->db->query('SELECT * FROM type_products');
+
+          return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    } catch (\PDOException $e) {
+            error_log('Database Taxes error: ' . $e->getMessage());
+            throw new \RuntimeException('Erro ao buscar Tipo de Impostos. Por favor, tente novamente mais tarde.');
+    }
   }
 
   public function insert($typeProduct):bool
   {
-    $sql = "INSERT INTO type_product (name) VALUES (:name)";
-    $stmt = $this->db->prepare($sql);
-    $stmt->bindParam(':name', $typeProduct['name']);
+    try {
+        $sql = "INSERT INTO type_product (name) VALUES (:name)";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':name', $typeProduct['name']);
  
-    if($stmt->execute()){
-      return true;
-    };
+        if($stmt->execute()){
+          return true;
+        }
+    } catch (\PDOException $e) {
+          throw new \Exception('Erro ao inserir: ' . $e->getMessage());
+    }
     return false;
- 
   }
 
 }

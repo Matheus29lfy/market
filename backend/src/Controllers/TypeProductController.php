@@ -30,10 +30,26 @@ class TypeProductController {
      * )
      */
     public function getAll(Request $request, Response $response, $args) {
-        $typeProduct = $this->typeProductService->getAll();
-        $typeProductResponse = ["type_product" => $typeProduct];
-        $response->getBody()->write(json_encode($typeProductResponse));
-        return $response->withHeader('Content-Type', 'application/json');
+ 
+       try {
+             $typeProduct = $this->typeProductService->getAll();
+             $response->getBody()->write(json_encode(["type_product" => $typeProduct]));
+        
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(200);
+       } catch (\RuntimeException $e) {
+        $statusCode = $e->getCode() === 400 ? 400 : 500;
+        
+        $response->getBody()->write(json_encode([
+            'error' => $e->getMessage(),
+            'status' => $statusCode
+        ]));
+        
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus($statusCode);
+       }
     }
 
     /**

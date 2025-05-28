@@ -23,7 +23,6 @@ class ProductsRepository{
   {
     try {
       
-  
         $sql = "INSERT INTO products (name,price, quantity, type_category_id) VALUES (:name, :price, :quantity,:type_category_id)";
         $stmt = $this->db->prepare($sql);
         

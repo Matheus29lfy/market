@@ -10,7 +10,23 @@ class  TypeProductService{
   }
   public function getAll()
   {
-     return $this->typeProductRepository->getAll();
+    try {
+           $result = $this->typeProductRepository->getAll();
+            
+            if (empty($result)) {
+                throw new \RuntimeException('Nenhum Tipo de imposto encontrado', 400);
+            }
+            
+            return $result;
+            
+        } catch (\RuntimeException $e) {
+            // Repassa exceções com código 400
+            if ($e->getCode() === 400) {
+                throw $e;
+            }
+            throw new \RuntimeException('Erro ao processar imposto', 500);
+        }
+    //  return 
   }
 
   public function insert($typeProduct)
