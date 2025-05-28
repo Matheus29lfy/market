@@ -19,7 +19,8 @@ CREATE TABLE products (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
-    type_product_id INTEGER REFERENCES type_products(id)
+    type_product_id INTEGER REFERENCES type_products(id),
+    quantity INTEGER NOT NULL
 );
 
 -- Tabela de Impostos
