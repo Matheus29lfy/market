@@ -45,7 +45,7 @@ class SellsRepository {
 
             $sellId = $this->db->lastInsertId();
 
-            $sqlItem = "INSERT INTO sell_items (sell_id, product_id, quantity) VALUES (:sell_id, :product_id, :quantity)";
+            $sqlItem = "INSERT INTO sell_products (sell_id, product_id, quantity) VALUES (:sell_id, :product_id, :quantity)";
             $stmtItem = $this->db->prepare($sqlItem);
 
             $stmtItem->bindParam(':sell_id', $sellId);
@@ -57,6 +57,7 @@ class SellsRepository {
             $this->db->commit();
             return true;
         } catch (\Exception $e) {
+            error_log('Database error Sells: ' . $e->getMessage());
             $this->db->rollBack();
             throw $e;
         }
@@ -76,7 +77,7 @@ class SellsRepository {
 
             $sellId = $this->db->lastInsertId();
 
-            $sqlItem = "INSERT INTO sell_items (sell_id, product_id, quantity) VALUES ";
+            $sqlItem = "INSERT INTO sell_products (sell_id, product_id, quantity) VALUES ";
             $values = [];
             $params = [];
 
