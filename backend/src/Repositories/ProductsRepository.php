@@ -7,17 +7,22 @@ use PDOException;
 
 class ProductsRepository{  
    private   $db;
-   public function __construct(Connection $db = null)
+   public function __construct(Connection $db)
     {
       $this->db = $db->getPdo();
     }
  
   public function getAll()
   {
-    $stmt = $this->db->query('SELECT * FROM products');
- 
-    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-  }
+     try {
+           $stmt = $this->db->query('SELECT * FROM products');
+
+           return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    } catch (\PDOException $e) {
+            error_log('Database Products error: ' . $e->getMessage());
+            throw new \RuntimeException('Erro ao buscar Produtos. Por favor, tente novamente mais tarde.');
+    }
+   }
 
   public function insert($product):bool
   {
@@ -35,7 +40,8 @@ class ProductsRepository{
           return true;
         };
       } catch (\Exception $exception) {
-        throw new \Exception('Erro ao inserir: ' . $exception->getMessage());
+        error_log('Database Products error: ' . $exception->getMessage());
+        throw new \Exception('Erro ao inserir: Produtos');
       }
     return false;
  
@@ -65,6 +71,7 @@ class ProductsRepository{
         return true; // Retorna verdadeiro se tudo ocorrer bem
     } catch (PDOException $e) {
         // Desfaz a transação em caso de erro
+        error_log('Database Products error: ' . $e->getMessage());
         $this->db->rollBack();
         return false; // Retorna falso se houver erro
     }
@@ -82,18 +89,24 @@ public function updateQuantitySingle($productId, int $quantityChange) {
 
         return true; // Retorna verdadeiro se a atualização ocorrer bem
     } catch (PDOException $e) {
-      throw new PDOException($e->getMessage(), (int)$e->getCode());
-
+      error_log('Database Products error: ' . $e->getMessage());
+      throw new PDOException('Erro ao atualizar quantidade de produtos');
     }
 }
 
  public function getAllProductsToShow()
   {
-    $stmt = $this->db->query('SELECT p.id, p.name, p.price, p.type_category_id, tp.name
+    try {
+         $stmt = $this->db->query('SELECT p.id, p.name, p.price, p.type_category_id, tp.name
                             FROM products p
                             LEFT JOIN  type_product  tp on tp.id = p.type_category_id');
 
-    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    } catch (\PDOException $e) {
+            error_log('Database Products error: ' . $e->getMessage());
+            throw new \RuntimeException('Erro ao buscar Produtos. Por favor, tente novamente mais tarde.');
+    }
+
   }
 
 }
