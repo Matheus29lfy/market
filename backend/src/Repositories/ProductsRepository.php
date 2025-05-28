@@ -28,13 +28,13 @@ class ProductsRepository{
   {
     try {
       
-        $sql = "INSERT INTO products (name,price, quantity, type_category_id) VALUES (:name, :price, :quantity,:type_category_id)";
+        $sql = "INSERT INTO products (name,price, quantity, type_product_id) VALUES (:name, :price, :quantity,:type_product_id)";
         $stmt = $this->db->prepare($sql);
         
         $stmt->bindParam(':name', $product['name']);
         $stmt->bindParam(':price', $product['price']);
         $stmt->bindParam(':quantity', $product['quantity']);
-        $stmt->bindParam(':type_category_id', $product['type_category_id']);
+        $stmt->bindParam(':type_product_id', $product['type_product_id']);
     
         if($stmt->execute()){
           return true;
@@ -97,9 +97,9 @@ public function updateQuantitySingle($productId, int $quantityChange) {
  public function getAllProductsToShow()
   {
     try {
-         $stmt = $this->db->query('SELECT p.id, p.name, p.price, p.type_category_id, tp.name
+         $stmt = $this->db->query('SELECT p.id, p.name, p.price, p.type_product_id, tp.name
                             FROM products p
-                            LEFT JOIN  type_product  tp on tp.id = p.type_category_id');
+                            LEFT JOIN  type_product  tp on tp.id = p.type_product_id');
 
          return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     } catch (\PDOException $e) {
