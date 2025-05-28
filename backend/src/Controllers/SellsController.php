@@ -132,15 +132,15 @@ public function getAll(Request $request, Response $response, $args) {
                 // Insere em lote
                 $sellReturn = $this->sellsService->insertBatch($sell);
                 // Implementar futuramente tabela de estoque
-                // $responseQuantityProduct = $this->productsService->updateQuantityBatch($sell['product_id'], $sell['quantity']);
+                $responseQuantityProduct = $this->productsService->updateQuantityBatch($sell['product_id'], $sell['quantity']);
             } else {
                 $sellReturn = $this->sellsService->insertSingle($sell);
                 // Implementar futuramente tabela de estoque
-                // $responseQuantityProduct = $this->productsService->updateQuantitySingle($sell['product_id'][0], $sell['quantity'][0]);
+                $responseQuantityProduct = $this->productsService->updateQuantitySingle($sell['product_id'][0], $sell['quantity'][0]);
             }
 
-            // if ($sellReturn && $responseQuantityProduct) {
-            if ($sellReturn) {
+            if ($sellReturn && $responseQuantityProduct) {
+            // if ($sellReturn) {
                 $response->getBody()->write(json_encode(['message' => 'Venda salva com sucesso!']));
                 return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
             } else {
