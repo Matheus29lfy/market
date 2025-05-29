@@ -1,5 +1,4 @@
 <?php
-$_GET['url'] = ltrim($_SERVER['REQUEST_URI'], '/');
 require __DIR__.'/src/index.php';
 require __DIR__ . '/../vendor/autoload.php';
 
