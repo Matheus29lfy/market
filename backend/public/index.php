@@ -1,7 +1,7 @@
 <?php
 require __DIR__.'/src/index.php';
 require __DIR__ . '/../vendor/autoload.php';
-
+    
 use Slim\Factory\AppFactory;
 use DI\Container;
 use Dotenv\Dotenv;
