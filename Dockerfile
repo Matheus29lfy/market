@@ -1,7 +1,8 @@
-FROM php:8.2-apache
+FROM php:8.2-fpm
 
-# 1. Instala dependências do sistema
+# 1. Instala dependências
 RUN apt-get update && apt-get install -y \
+    nginx \
     git \
     unzip \
     libzip-dev \
@@ -14,29 +15,26 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
     --install-dir=/usr/local/bin \
     --filename=composer
 
-# 3. Copia os arquivos do backend
+# 3. Copia os arquivos
 COPY ./backend /app
 WORKDIR /app
 
-# 4. Configura permissões
-RUN chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www/storage
+# 4. Permissões
+RUN chown -R www-data:www-data /app \
+    && chmod -R 755 /app/storage
 
-# 5. Instala dependências PHP
+# 5. Instala dependências
 RUN composer install --no-dev --ignore-platform-reqs --optimize-autoloader
 
-# 6. Configura o Apache
-ENV APACHE_DOCUMENT_ROOT=/app/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
-    /etc/apache2/sites-available/*.conf \
-    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' \
-    /etc/apache2/apache2.conf \
-    /etc/apache2/conf-available/*.conf \
-    && echo "ServerName localhost" >> /etc/apache2/apache2.conf \
-    && sed -ri -e 's!AllowOverride None!AllowOverride All!g' /etc/apache2/apache2.conf \
-    && a2enmod rewrite
-    
-RUN echo "<?php require __DIR__.'/public/index.php'; ?>" > /app/index.php
-# 7. Expõe a porta e inicia o Apache
-EXPOSE 80
-CMD ["apache2-foreground"]
+# 6. Configura Nginx
+COPY ./backend/nginx.conf /etc/nginx/conf.d/default.conf
+
+# 7. Configura PHP-FPM
+COPY ./backend/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
+
+# 8. Script de inicialização
+COPY ./backend/start.sh /start.sh
+RUN chmod +x /start.sh
+
+EXPOSE 8080
+CMD ["/start.sh"]
