@@ -15,8 +15,8 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
     --filename=composer
 
 # 3. Copia os arquivos do backend
-COPY ./backend /var/www
-WORKDIR /var/www
+COPY ./backend /app
+WORKDIR /app
 
 # 4. Configura permissões
 RUN chown -R www-data:www-data /var/www \
@@ -26,7 +26,7 @@ RUN chown -R www-data:www-data /var/www \
 RUN composer install --no-dev --ignore-platform-reqs --optimize-autoloader
 
 # 6. Configura o Apache
-ENV APACHE_DOCUMENT_ROOT=/var/www/public
+ENV APACHE_DOCUMENT_ROOT=/app/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
     /etc/apache2/sites-available/*.conf \
     && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' \
@@ -35,7 +35,8 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
     && echo "ServerName localhost" >> /etc/apache2/apache2.conf \
     && sed -ri -e 's!AllowOverride None!AllowOverride All!g' /etc/apache2/apache2.conf \
     && a2enmod rewrite
-
+    
+RUN echo "<?php require __DIR__.'/public/index.php'; ?>" > /app/index.php
 # 7. Expõe a porta e inicia o Apache
 EXPOSE 80
 CMD ["apache2-foreground"]
