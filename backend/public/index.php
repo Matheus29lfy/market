@@ -1,25 +1,23 @@
 <?php
-require __DIR__.'/src/index.php';
 require __DIR__ . '/../vendor/autoload.php';
-    
+
 use Slim\Factory\AppFactory;
 use DI\Container;
 use Dotenv\Dotenv;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
+// Carregar variáveis de ambiente
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__ . '/../');
 $dotenv->load();
 
+// Criar container e app
 $container = new Container();
 AppFactory::setContainer($container); 
-
 $app = AppFactory::create();
 
-// Adicione isso antes das rotas
+// Middleware de erros
 $errorMiddleware = $app->addErrorMiddleware(true, true, true);
-
-// Configurar o handler de erro
 $errorMiddleware->setDefaultErrorHandler(function (
     Request $request,
     Throwable $exception,
@@ -41,6 +39,8 @@ $errorMiddleware->setDefaultErrorHandler(function (
         ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
         ->withStatus(500);
 });
+
+// Middleware CORS
 $app->add(function ($request, $handler) {
     $response = $handler->handle($request);
     return $response
@@ -48,14 +48,12 @@ $app->add(function ($request, $handler) {
         ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
         ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
 });
-// Adicione o middleware CORS
 
-
-// Opção para lidar com requisições OPTIONS
 $app->options('/{routes:.+}', function (Request $request, Response $response): Response {
     return $response;
 });
 
+// Configurações, dependências, rotas
 $settings = require __DIR__ . '/../src/settings.php';
 $container->set('settings', $settings);
 
