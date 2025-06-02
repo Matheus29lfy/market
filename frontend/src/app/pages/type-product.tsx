@@ -81,10 +81,6 @@ const TypeProductPage: React.FC = () => {
         <div className="text-center py-8">
           <p>Carregando tipos de produto...</p>
         </div>
-      ) : error ? (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
       ) : typeProducts.length === 0 ? (
         <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
           Nenhum tipo de produto cadastrado. Clique no botão acima para criar o primeiro.

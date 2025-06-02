@@ -10,11 +10,17 @@ interface TypeProduct {
   name: string;
 }
 
+interface ApiResponse {
+  type_product?: TypeProduct[];
+  error?: string;
+}
+
 const TypeProductPage: React.FC = () => {
   const [typeProducts, setTypeProducts] = useState<TypeProduct[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   // const router = useRouter();
   const [isAddedProductType, setIsAddedProductType] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -28,24 +34,37 @@ const TypeProductPage: React.FC = () => {
   };
 
   useEffect(() => {
+      const fetchTypeProducts = async () => {
+      setIsLoading(true);
+      
+      try {
+        const response = await fetch('http://localhost:8080/type-product', {
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        console.log('response')
+       console.log(response)
+        if (!response.ok) {
+          const errorData = await response.json();
+           console.error('Erro ao buscar tipos de produto:', errorData);
+        }
 
-    const fetchProductsType = () =>
-       fetch('http://localhost:8080/type-product', {
-      method: 'GET',
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then(response => response.json())
-      .then(data => setTypeProducts(data.type_product))
-      .catch(error => console.error('Erro ao buscar tipos de produto:', error));
+        const data: ApiResponse = await response.json();
+        setTypeProducts(data.type_product || []);
 
-      if(isAddedProductType){
-        fetchProductsType();
+      } catch (error) {
+        console.error('Erro ao buscar tipos de produto:', error);
+      } finally {
+        setIsLoading(false);
       }
-
-      fetchProductsType();
+    };
+      if(isAddedProductType){
+        fetchTypeProducts();
+      }
+    fetchTypeProducts();
 
   }, [isAddedProductType]);
 
@@ -72,6 +91,15 @@ const TypeProductPage: React.FC = () => {
       >
         Criar Tipo de Produto
       </button>
+       {isLoading ? (
+        <div className="text-center py-8">
+          <p>Carregando tipos de produto...</p>
+        </div>
+      ) : typeProducts.length === 0 ? (
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
+          Nenhum tipo de produto cadastrado. Clique no botão acima para criar o primeiro.
+        </div>
+      ) : (
       <ul className="list-disc pl-5">
         {typeProducts.map((typeProduct) => (
           <li key={typeProduct.id}>
@@ -84,6 +112,7 @@ const TypeProductPage: React.FC = () => {
           </li>
         ))}
       </ul>
+      )}
       <TypeProductModal isOpen={isModalOpen} closeModal={closeModal} addedTypeProduct={addedProductType}  />
     </div>
   );
