@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: bitnami/postgresql
+    environment:
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_DB=api-market
+    volumes:
+      - postgres:/bitnami/postgresql
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend:/var/www
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: api-market
+      DB_USERNAME: myuser
+      DB_PASSWORD: mypassword
+      JWT_SECRET: mysecret
+
+volumes:
+  postgres:
