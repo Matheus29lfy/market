@@ -55,6 +55,10 @@ const TaxesPage: React.FC = () => {
           if (response.status === 400 && errorData.error?.includes('Nenhuma encontrada')) {
             return []; 
           }
+        
+          if (response.status === 500) {
+            return []; 
+          }
       
         }
 
