@@ -56,5 +56,5 @@ INSERT INTO type_products (name) VALUES ('Categoria 2');
 INSERT INTO products (name, price, type_product_id) VALUES ('Produto 1', 10.00, 1);
 INSERT INTO products (name, price, type_product_id) VALUES ('Produto 2', 20.00, 2);
 
-INSERT INTO taxes (type_category_id, name, tax_percentage) VALUES (1, 'Imposto A', 10.00);
-INSERT INTO taxes (type_category_id, name, tax_percentage) VALUES (2, 'Imposto B', 20.00);
+INSERT INTO taxes (type_product_id, name, tax_percentage) VALUES (1, 'Imposto A', 10.00);
+INSERT INTO taxes (type_product_id, name, tax_percentage) VALUES (2, 'Imposto B', 20.00);
