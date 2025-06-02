@@ -13,6 +13,10 @@ interface Product {
   price: number;
   quantity: number;
 }
+interface ApiResponse {
+  products?: Product[];
+  error?: string;
+}
 
 const ProductPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -32,38 +36,39 @@ const ProductPage: React.FC = () => {
   };
   
   useEffect(() => {
-    const fetchProducts = () =>
-      fetch('http://localhost:8080/products', {
-        method: 'GET',
-        mode: 'cors', // Modo CORS para permitir requisições de outro domínio
-        headers: {
-          'Content-Type': 'application/json'
+    const fetchProducts = async () => {
+      setIsLoading(true);
+            
+      try {
+        const response = await fetch('http://localhost:8080/products', {
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        console.log('response')
+       console.log(response)
+        if (!response.ok) {
+          const errorData = await response.json();
+         console.log(`Erro ao buscar produtos ${errorData}`);
         }
-      })
-      .then(response => response.json())
-      .then(data => {
-        setProducts(data.products);
-        setIsLoading(false); // Marca o carregamento como completo
-      })
-      .catch(error => {
-        console.error('Erro ao buscar produtos:', error);
-        setIsLoading(false); // Marca o carregamento como completo mesmo em caso de erro
-      });
 
-      if(isAddedProduct){
-        fetchProducts();
+        const data: ApiResponse = await response.json();
+        setProducts(data.products || []);
+       console.log(data.products)
+       console.log('products')
+       console.log(products)
+      } catch (error) {
+        console.error('Erro ao buscar tipos de produto:', error);
+      } finally {
+        setIsLoading(false);
       }
+    };
 
-      fetchProducts();
-       // Chama a função para buscar os produtos apenas uma vez
+    fetchProducts();
   }, [isAddedProduct]); // Array vazio indica que o useEffect será executado somente uma vez, após a montagem inicial
   
-      
-      
-  // if (isLoading) {
-  //   return <div>Carregando...</div>;
-  // }
-
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Produtos</h1>
@@ -89,11 +94,21 @@ const ProductPage: React.FC = () => {
       >
         Adicionar Produto
       </button>
+      {isLoading ? (
+        <div className="text-center py-8">
+          <p>Carregando os produtos...</p>
+        </div>
+      ) : products.length === 0 ? (
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
+          Nenhum produto cadastrado. Clique no botão acima para criar o primeiro.
+        </div>
+      ) : (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {products.map((product) => (
           <ProductCard key={product.id} {...product} />
         ))}
       </div>
+      )}
       <ProductModal isOpen={isModalOpen} closeModal={closeModal}  addedProduct={addedProduct}/>
     </div>
   );
