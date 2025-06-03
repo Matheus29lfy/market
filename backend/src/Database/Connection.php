@@ -15,15 +15,6 @@ class Connection {
             $pass = getenv('DB_PASSWORD');
             $port = getenv('DB_PORT');
 
-
-                var_dump([
-        'host' => getenv('DB_HOST'),
-        'port' => getenv('DB_PORT'),
-        'db'   => getenv('DB_DATABASE'),
-        'user' => getenv('DB_USERNAME'),
-        'pass' => getenv('DB_PASSWORD')
-    ]);
-
           $dsn = "pgsql:host={$host};port={$port};dbname={$db}";
           $this->pdo = new PDO($dsn,$user,$pass);
           $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
