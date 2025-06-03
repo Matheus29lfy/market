@@ -34,9 +34,6 @@ RUN echo '<Directory /var/www/public>\n\
 # Define o diretório de trabalho
 WORKDIR /var/www
 
-COPY .env /var/www/.env
-
-RUN chown www-data:www-data /var/www/.env
 # Permissões
 RUN chown -R www-data:www-data /var/www
 
