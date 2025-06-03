@@ -13,7 +13,8 @@ class Connection {
             $db   = getenv('DB_DATABASE');
             $user = getenv('DB_USERNAME');
             $pass = getenv('DB_PASSWORD');
-            $port = getenv('DB_PORT') ?: 5432;
+            $port = getenv('DB_PORT');
+            
           $dsn = "pgsql:host={$host};port={$port};dbname={$db}";
           $this->pdo = new PDO($dsn,$user,$pass);
           $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
