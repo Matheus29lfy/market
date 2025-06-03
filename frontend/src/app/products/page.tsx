@@ -67,7 +67,7 @@ const ProductPage: React.FC = () => {
     };
 
     fetchProducts();
-  }, [isAddedProduct]); // Array vazio indica que o useEffect será executado somente uma vez, após a montagem inicial
+  }, [isAddedProduct, products]); // Array vazio indica que o useEffect será executado somente uma vez, após a montagem inicial
   
   return (
     <div className="container mx-auto p-4">

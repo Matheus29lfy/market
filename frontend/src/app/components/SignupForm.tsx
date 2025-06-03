@@ -3,8 +3,6 @@
 import Link from "next/link";
 
 import { Card, CardFooter, CardHeader,Input } from "@nextui-org/react";
-import { Label } from "@headlessui/react";
-
 
 export function SignupForm() {
   return (
@@ -19,7 +17,9 @@ export function SignupForm() {
           </CardHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+               <label htmlFor="username">
+                Username
+              </label>
               <Input
                 id="username"
                 name="username"
@@ -28,7 +28,9 @@ export function SignupForm() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <label htmlFor="email">
+                Email
+              </label>
               <Input
                 id="email"
                 name="email"
@@ -38,7 +40,9 @@ export function SignupForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <label htmlFor="password">
+                Password
+              </label>
               <Input
                 id="password"
                 name="password"

@@ -2,6 +2,8 @@
 import { z } from "zod";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { RequestCookies } from "next/dist/compiled/@edge-runtime/cookies";
 
 import {
   registerUserService,
@@ -29,6 +31,7 @@ const schemaRegister = z.object({
 });
 
 export async function registerUserAction(prevState: any, formData: FormData) {
+
   const validatedFields = schemaRegister.safeParse({
     username: formData.get("username"),
     password: formData.get("password"),
@@ -55,16 +58,23 @@ export async function registerUserAction(prevState: any, formData: FormData) {
     };
   }
 
-  if (responseData.error) {
+  if (responseData.error) { 
     return {
       ...prevState,
-      strapiErrors: responseData.error,
-      zodErrors: null,
-      message: "Failed to Register.",
+      // strapiErrors: responseData.error,
+      // zodErrors: null,
+      // message: "Failed to Register.",
+        strapiErrors: null,
+        zodErrors: null,
+        message: "Ops! Something went wrong. Please try again.",
     };
   }
+    // const cookieStore = cookies() as RequestCookies;
+    // cookieStore.set("jwt", responseData.jwt);
+    // const cookieStore = cookies();
+    // cookieStore.set("jwt", responseData.jwt);
 
-  cookies().set("jwt", responseData.jwt, config);
+  // cookies().set("jwt", responseData.jwt);
   redirect("/dashboard");
 }
 
@@ -121,11 +131,11 @@ export async function loginUserAction(prevState: any, formData: FormData) {
     };
   }
 
-  cookies().set("jwt", responseData.jwt);
+  // cookies().set("jwt", responseData.jwt);
   redirect("/dashboard");
 }
 
 export async function logoutAction() {
-  cookies().set("jwt", "", { ...config, maxAge: 0 });
+  // cookies().set("jwt", "", { ...config, maxAge: 0 });
   redirect("/");
 }

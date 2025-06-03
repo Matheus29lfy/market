@@ -12,7 +12,8 @@ export async function getUserMeLoader() {
   const url = new URL("/api/users/me", baseUrl);
   // url.search = query;
 
-  const authToken = await getAuthToken();
+  // const authToken = await getAuthToken();
+  const authToken = '';
   if (!authToken) return { ok: false, data: null, error: null };
 
   try {

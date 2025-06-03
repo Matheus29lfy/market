@@ -58,7 +58,6 @@ const TypeProductModal: React.FC<TypeProductModalProps> = ({ isOpen, closeModal,
       <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" onClose={closeModal}>
         <div className="min-h-screen px-4 text-center">
 
-          {/*@ts-expect-error: Transition.Child is deprecated but still required for individual animation steps*/}
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"

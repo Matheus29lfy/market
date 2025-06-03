@@ -2,20 +2,20 @@
 
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth()
-   const router = useRouter();
+  const auth = useAuth();
+  const router = useRouter();
 
   React.useEffect(() => {
-    if (!isAuthenticated) {
+    if (!auth?.isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, router]);
+  }, [auth?.isAuthenticated, router]);
 
-  if (!isAuthenticated) {
-    return null; // Ou você pode retornar um spinner/carregando
+  if (!auth?.isAuthenticated) {
+    return null;
   }
 
   return <>{children}</>;

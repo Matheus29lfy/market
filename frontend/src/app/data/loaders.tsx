@@ -6,17 +6,20 @@ import { flattenAttributes, getURL } from "../../lib/utils";
 const baseUrl = getURL();
 
 async function fetchData(url: string) {
-  const authToken = await getAuthToken();
+  // const authToken = await getAuthToken();
+  const authToken = '';
 
   const headers = {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${authToken}`,
+      // Authorization: `Bearer ${authToken}`,
+      Authorization: `Bearer`,
     },
   };
 
   try {
+    // const response = await fetch(url, authToken ? headers : {});
     const response = await fetch(url, authToken ? headers : {});
     const data = await response.json();
     return flattenAttributes(data);
