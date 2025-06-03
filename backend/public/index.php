@@ -8,8 +8,10 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 // Carregar variáveis de ambiente
+if (file_exists(__DIR__ . '/../.env')) {
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__ . '/../');
 $dotenv->load();
+}
 
 // Criar container e app
 $container = new Container();
