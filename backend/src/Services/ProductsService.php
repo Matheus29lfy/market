@@ -10,8 +10,24 @@ class  ProductsService{
 }
   public function getAll()
   {
-    $products = $this->productsRepository->getAll();
-     return $this->convertValueFloat($products);
+
+         try {            
+            $products = $this->productsRepository->getAll();
+            $result = $this->convertValueFloat($products);
+            if (empty($result)) {
+                throw new \RuntimeException('Nenhuma produto encontrado', 400);
+            }
+            
+            return $result;
+            
+        } catch (\RuntimeException $e) {
+            // Repassa exceções com código 400
+            if ($e->getCode() === 400) {
+                throw $e;
+            }
+            throw new \RuntimeException('Erro ao processar produto', 500);
+        }
+
   }
 
   public function insert($product)

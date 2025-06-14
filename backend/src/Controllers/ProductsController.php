@@ -31,10 +31,27 @@ class ProductsController {
      * )
      */
     public function getAll(Request $request, Response $response, $args) {
+    try {
         $products = $this->productsService->getAll();
-        $productsResponse = ["products" => $products];
-        $response->getBody()->write(json_encode($productsResponse));
-        return $response->withHeader('Content-Type', 'application/json');
+
+        $response->getBody()->write(json_encode(['products' => $products]));
+        
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(200);
+            
+    } catch (\RuntimeException $e) {
+        $statusCode = $e->getCode() === 400 ? 400 : 500;
+        
+        $response->getBody()->write(json_encode([
+            'error' => $e->getMessage(),
+            'status' => $statusCode
+        ]));
+        
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus($statusCode);
+    }
     }
 
     /**
