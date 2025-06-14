@@ -10,7 +10,7 @@ import { fetchProducts } from '../services/apiService';
 interface Product {
   id: number;
   name: string;
-  type_product: string;
+  type_product_id: number;
   price: number;
   quantity: number;
 }
