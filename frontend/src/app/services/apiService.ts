@@ -33,11 +33,11 @@ export const fetchProducts = async (): Promise<{ products: Product[] }> => {
   try {
     const response = await fetch(apiConfig.endpoints.products);
     if (!response.ok) {
-     console.error('Failed to fetch products');
+     console.log('Failed to fetch products');
     }
     return response.json();
   } catch (error) {
-    console.error('Error fetching products:', error);
+    console.log('Error fetching products:', error);
     throw error;
   }
 };
@@ -53,12 +53,12 @@ export const createProduct = async (productData: Omit<Product, 'id'>): Promise<P
     });
     
     if (!response.ok) {
-      console.error('Failed to create product');
+      console.log('Failed to create product');
     }
     
     return response.json();
   } catch (error) {
-    console.error('Error creating product:', error);
+    console.log('Error creating product:', error);
     throw error;
   }
 };
@@ -72,7 +72,7 @@ export const fetchProductTypes = async (): Promise<{ type_product?: ProductType[
     }
     return response.json();
   } catch (error) {
-    console.error('Error fetching product types:', error);
+    console.log('Error fetching product types:', error);
     throw error;
   }
 };
@@ -82,11 +82,11 @@ export const fetchTaxes = async (): Promise<{ taxes?: any[] }> => {
   try {
     const response = await fetch(apiConfig.endpoints.taxes);
     if (!response.ok) {
-      throw new Error('Failed to fetch taxes');
+       console.log('Error fetching taxes');
     }
     return response.json();
   } catch (error) {
-    console.error('Error fetching taxes:', error);
+     console.log('Error fetching taxes:', error);
     throw error;
   }
 };
@@ -103,12 +103,12 @@ export const createSell = async (sellData: any): Promise<any> => {
     });
     
     if (!response.ok) {
-      throw new Error('Failed to create sell');
+      console.log('Failed to create sell');
     }
     
     return response.json();
   } catch (error) {
-    console.error('Error creating sell:', error);
+    console.log('Error creating sell:', error);
     throw error;
   }
 };
@@ -124,7 +124,7 @@ export const createTypeProduct = async (typeProductData: { name: string }) => {
 
   if (!response.ok) {
     const errorData = await response.json();
-    console.error(errorData.message || 'Failed to create product type');
+    console.log(errorData.message || 'Failed to create product type');
   }
 
   return response.json();
@@ -141,20 +141,31 @@ export const createTax = async (taxData: { tax_percentage: number; type_product_
 
   if (!response.ok) {
     const errorData = await response.json();
-    throw new Error(errorData.message || 'Failed to create tax');
+     console.log(errorData.message || 'Failed to create tax');
   }
 
   return response.json();
 };
 
-export const fetchSells = async (): Promise<Sell[]> => {
-  const response = await fetch(`${apiConfig.baseUrl}/sells`);
-  
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || 'Failed to fetch sells');
-  }
+export const fetchSells = async (): Promise<{ sells: Sell[] }> => {
 
-  const data = await response.json();
-  return data.sells || [];
+    try {
+      const response = await fetch(apiConfig.endpoints.sells);
+
+    if (!response.ok) {
+       console.log('Failed to fetch sells');
+    }
+    return response.json();
+  } catch (error) {
+     console.log('Error fetching sells:', error);
+    throw error;
+  }
+  
+  // if (!response.ok) {
+    // const errorData = await response.json();
+      //  console.log('Failed to fetch sells');
+    //  console.log(errorData.error || 'Failed to fetch sells');
+  // }
+    // return response.json();
+  // return data.sells || [];
 };

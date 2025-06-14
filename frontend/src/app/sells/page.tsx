@@ -32,10 +32,12 @@ const SellsPage: React.FC = () => {
     setError(null);
     
     try {
-      const data = await fetchSells();
-      setSells(data);
+
+      const response = await fetchSells();
+      setSells(response.sells || []);
+
     } catch (error) {
-      console.error('Failed to load sells:', error);
+      console.log('Failed to load sells:', error);
       setError('Falha ao carregar vendas');
       toast.error('Não foi possível carregar as vendas');
       setSells([]);

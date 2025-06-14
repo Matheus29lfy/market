@@ -34,15 +34,12 @@ const ProductPage: React.FC = () => {
       setError(null);
       
       try {
-        const response = await fetchProducts();
-        
-        if (!response.products) {
-          console.log('Estrutura de dados inválida da API');
-        }
-        
-        setProducts(response.products);
+
+         const response = await fetchProducts();
+         setProducts(response.products || []);
+
       } catch (error) {
-        console.error('Erro ao carregar produtos:', error);
+        console.log('Erro ao carregar produtos:', error);
         setError('Falha ao carregar produtos');
         toast.error('Não foi possível carregar os produtos');
         setProducts([]); // Garante que products não seja undefined
