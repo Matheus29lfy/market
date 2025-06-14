@@ -3,15 +3,13 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import TypeProductModal from '../components/TypeProductModal';
+import { toast } from 'react-toastify';
+import { fetchProductTypes } from '../services/apiService';
+import Link from 'next/link';
 
 interface TypeProduct {
   id: number;
   name: string;
-}
-
-interface ApiResponse {
-  type_product?: TypeProduct[];
-  error?: string;
 }
 
 const TypeProductPage: React.FC = () => {
@@ -21,86 +19,92 @@ const TypeProductPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
+  const loadTypeProducts = async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetchProductTypes();
+      setTypeProducts(response.type_product || []);
+    } catch (error) {
+      console.error('Failed to load product types:', error);
+      setError('Falha ao carregar tipos de produto');
+      toast.error('Não foi possível carregar os tipos de produto');
+      setTypeProducts([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
-    const fetchTypeProducts = async () => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        const response = await fetch('http://localhost:8080/type-product', {
-          method: 'GET',
-          mode: 'cors',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        console.log('response')
-       console.log(response)
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Erro ao buscar tipos de produto');
-        }
-
-        const data: ApiResponse = await response.json();
-        setTypeProducts(data.type_product || []);
-           console.log('data.type_product')
-       console.log(data.type_product)
-       console.log('typeProducts')
-       console.log(typeProducts)
-      } catch (error) {
-        console.error('Erro ao buscar tipos de produto:', error);
-        setError(error instanceof Error ? error.message : 'Erro desconhecido');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchTypeProducts();
-  }, [typeProducts]);
+    loadTypeProducts();
+  }, []);
+  const handleTypeProductAdded = () => {
+    loadTypeProducts(); // Recarrega a lista quando um novo imposto é adicionado
+  };
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Tipos de Produto</h1>
+
+      <div className="mb-4 flex flex-wrap gap-2">
+        <Link href="/sells" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Ver Vendas
+        </Link>
+        <Link href="/products" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">  
+          Ver Produtos
+        </Link>
+        <Link href="/taxes" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Ver Impostos
+        </Link>
+        <Link href="/" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Home
+        </Link>
+      </div>
       
       <button
         onClick={openModal}
         className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-4"
+        disabled={isLoading}
       >
         Criar Tipo de Produto
       </button>
 
+      {/* Estados de carregamento e erro */}
       {isLoading ? (
         <div className="text-center py-8">
           <p>Carregando tipos de produto...</p>
+        </div>
+      ) : error ? (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
         </div>
       ) : typeProducts.length === 0 ? (
         <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
           Nenhum tipo de produto cadastrado. Clique no botão acima para criar o primeiro.
         </div>
       ) : (
-        <ul className="list-disc pl-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {typeProducts.map((typeProduct) => (
-            <li key={typeProduct.id} className="mb-2">
-              <button
-                onClick={() => router.push(`/products?type_product_id=${typeProduct.id}`)}
-                className="text-blue-500 hover:underline hover:text-blue-700"
-              >
-                {typeProduct.name}
-              </button>
-            </li>
+            <div 
+              key={typeProduct.id} 
+              className="border p-4 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => router.push(`/products?type_product_id=${typeProduct.id}`)}
+            >
+              <h3 className="font-medium text-lg">{typeProduct.name}</h3>
+              <p className="text-sm text-gray-500">ID: {typeProduct.id}</p>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
       
-      {/* <TypeProductModal isOpen={isModalOpen} closeModal={closeModal} /> */}
+      <TypeProductModal 
+        isOpen={isModalOpen} 
+        closeModal={closeModal}
+        onSuccess={handleTypeProductAdded}
+      />
     </div>
   );
 };

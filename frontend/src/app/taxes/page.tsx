@@ -5,79 +5,54 @@ import { useRouter } from 'next/router';
 import TaxesModal from '../components/TaxesModal';
 import Link from 'next/link';
 import TaxesCard from '../components/TaxesCard';
+import { toast } from 'react-toastify';
+import { fetchTaxes } from '../services/apiService';
 
-interface Taxes {
-    id: number,
-    type_category_id: number,
-    name: string,
-    tax_percentage: number  
-}
-
-interface ApiError {
-  error?: string;
-  status?: number;
+interface Tax {
+  id: number;
+  type_product_id: number; // Corrigido para o nome correto da coluna
+  name: string;
+  tax_percentage: number;
 }
 
 const TaxesPage: React.FC = () => {
-  const [taxes, setTaxes] = useState<Taxes[]>([]);
+  const [taxes, setTaxes] = useState<Tax[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isAddedTaxes, setIsAddedTaxes] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-  
-  const addedTaxes = () => {
-    setIsAddedTaxes(true);
+  const loadTaxes = async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetchTaxes();
+      setTaxes(response.taxes || []);
+    } catch (error) {
+      console.error('Failed to load taxes:', error);
+      setError('Falha ao carregar impostos');
+      toast.error('Não foi possível carregar os impostos');
+      setTaxes([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
-    const fetchTaxes = async () => {
-      setIsLoading(true);
-      
-      try {
-        const response = await fetch('http://localhost:8080/taxes', {
-          method: 'GET',
-          mode: 'cors',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+    loadTaxes();
+  }, []);
 
-        if (!response.ok) {
-          const errorData: ApiError = await response.json();
-      
-          if (response.status === 400 && errorData.error?.includes('Nenhuma encontrada')) {
-            return []; 
-          }
-        
-          if (response.status === 500) {
-            return []; 
-          }
-      
-        }
-
-        const data = await response.json();
-        setTaxes(data.taxes || []);
-        
-      } catch (error) {
-        console.error('Erro ao buscar tipos de produto:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchTaxes();
-  }, [isAddedTaxes]);
+  const handleTaxAdded = () => {
+    loadTaxes(); // Recarrega a lista quando um novo imposto é adicionado
+  };
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Tipos de Produto</h1>
+      <h1 className="text-2xl font-bold mb-4">Impostos</h1>
+      
       <div className="mb-4">
         <Link href="/type-product" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
           Ver Tipos de Produtos
@@ -97,26 +72,34 @@ const TaxesPage: React.FC = () => {
         onClick={openModal}
         className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-4"
       >
-        Criar Tipo de Produto
+        Criar Imposto
       </button>
 
       {isLoading ? (
         <div className="text-center py-8">
-          <p>Carregando tipos de produto...</p>
+          <p>Carregando impostos...</p>
+        </div>
+      ) : error ? (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
         </div>
       ) : taxes.length === 0 ? (
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-          Nenhum tipo de produto encontrado. Clique no botão acima para criar um novo.
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
+          Nenhum imposto cadastrado. Clique no botão acima para criar o primeiro.
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {taxes.map((taxe) => (
-            <TaxesCard key={taxe.id} {...taxe} />
+          {taxes.map((tax) => (
+            <TaxesCard key={tax.id} {...tax} />
           ))}
         </div>
       )}
       
-      <TaxesModal isOpen={isModalOpen} closeModal={closeModal} addedTaxes={addedTaxes} />
+      <TaxesModal 
+        isOpen={isModalOpen} 
+        closeModal={closeModal}
+        onSuccess={handleTaxAdded} // Passa a função de callback
+      />
     </div>
   );
 };

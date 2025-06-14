@@ -1,11 +1,10 @@
-"use client"; // Adicione esta linha
+"use client";
 
 import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment, useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-// import { Notyf } from 'notyf';
-// import 'notyf/notyf.min.css';
 import { isNumeric } from '../lib';
+import { fetchProductTypes, createProduct } from '../services/apiService';
 
 interface ProductType {
   id: number;
@@ -15,104 +14,118 @@ interface ProductType {
 interface ProductModalProps {
   isOpen: boolean;
   closeModal: () => void;
-  addedProduct:() =>void;
+  addedProduct: () => void;
 }
 
-const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedProduct }) => {
-  const [name, setName] = useState('');
-  const [productTypeId, setProductTypeId] = useState('');
-  const [price, setPrice] = useState('');
-  const [quantity, setQuantity] = useState('');
+const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal, addedProduct }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    productTypeId: '',
+    price: '',
+    quantity: ''
+  });
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  // const notyf = new Notyf();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const clearInput = () => {
+    setFormData({
+      name: '',
+      productTypeId: '',
+      price: '',
+      quantity: ''
+    });
+  };
 
-  const clearInput = () =>{
-    setName('')
-    setPrice('')
-    setProductTypeId('')
-    setQuantity('')
-  }
-
-  const fetchProductTypes = async () => {
+  const fetchTypes = async () => {
+    setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:8080/type-product', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      if (!response.ok) {
-        throw new Error('Erro ao buscar tipos de produto');
-      }
-      const data = await response.json();
-      setProductTypes(data.type_product);
-      setIsLoading(false);
+      const response = await fetchProductTypes();
+      setProductTypes(response.type_product || []);
     } catch (error) {
-      // notyf.error("Erro ao buscar tipos de produto")
-       toast.error("Erro ao buscar tipos de produto")
+      console.error('Failed to fetch product types:', error);
+      toast.error('Falha ao carregar tipos de produto');
+      setProductTypes([]);
+    } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProductTypes();
-    if(!isOpen){
-      clearInput()
+    if (isOpen) {
+      fetchTypes();
+    } else {
+      clearInput();
     }
-  }, [isOpen])
+  }, [isOpen]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const validateForm = () => {
+    if (!formData.name.trim()) {
+      toast.error('O nome do produto é obrigatório');
+      return false;
+    }
+
+    if (!formData.productTypeId) {
+      toast.error('Selecione um tipo de produto');
+      return false;
+    }
+
+    if (!isNumeric(formData.price)) {
+      toast.error('Preço deve ser um valor numérico');
+      return false;
+    }
+
+    if (parseFloat(formData.price) <= 0) {
+      toast.error('O preço deve ser maior que zero');
+      return false;
+    }
+
+    if (!isNumeric(formData.quantity)) {
+      toast.error('Quantidade deve ser um valor numérico');
+      return false;
+    }
+
+    if (parseInt(formData.quantity, 10) <= 0) {
+      toast.error('A quantidade deve ser maior que zero');
+      return false;
+    }
+
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const validPrice =  isNumeric(price)
-    const validQuantity =  isNumeric(quantity)
+    
+    if (!validateForm()) return;
 
-    if(!validPrice){
-       toast.error("Erro ao buscar tipos de produto")
-      return
-    }
+    setIsSubmitting(true);
 
-    if(!validQuantity){
-       toast.error("Erro ao buscar tipos de produto")
-      return
-     }
+    try {
+      const product = {
+        name: formData.name,
+        price: parseFloat(formData.price),
+        quantity: parseInt(formData.quantity, 10),
+        type_product_id: parseInt(formData.productTypeId),
+      };
 
-  
-    const product = {
-      name,
-      price: parseFloat(price),
-      quantity: parseInt(quantity, 10),
-      type_product_id: parseInt(productTypeId),
-    };
- 
-    if(product.price <= 0){
-       toast.error("O valor do preço deve ser maior que 0")
-      return
-    }
-    if(product.quantity <= 0){
-     toast.error("O valor da quantidade deve ser maior que 0")
-      return
-     }
+      const response = await createProduct(product);
 
-    const response = await fetch('http://localhost:8080/products', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(product),
-    });
-
-
-    if (response.ok) {
-      closeModal();
-      addedProduct();
-      clearInput()
-     toast.success("Cadastrado com sucesso")
-
-    } else {
-      // Handle errors here
-      console.error('Failed to create product');
+      if (response) {
+        toast.success('Produto cadastrado com sucesso!');
+        closeModal();
+        addedProduct();
+        clearInput();
+      }
+    } catch (error) {
+      console.error('Failed to create product:', error);
+      toast.error('Erro ao cadastrar produto');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -164,6 +177,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
                   </svg>
                 </button>
               </div>
+
               <form onSubmit={handleSubmit} className="mt-4">
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
@@ -172,29 +186,37 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
                   <input
                     type="text"
                     id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     required
                   />
                 </div>
+
                 <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="productType">
+                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="productTypeId">
                     Tipo do Produto
                   </label>
                   <select
-                    id="productType"
-                    value={productTypeId}
-                    onChange={(e) => setProductTypeId(e.target.value)}
+                    id="productTypeId"
+                    name="productTypeId"
+                    value={formData.productTypeId}
+                    onChange={handleChange}
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     required
+                    disabled={isLoading}
                   >
                     <option value="">Selecione o Tipo de Produto</option>
                     {productTypes.map((type) => (
-                      <option key={type.id} value={type.id}>{type.name}</option>
+                      <option key={type.id} value={type.id}>
+                        {type.name}
+                      </option>
                     ))}
                   </select>
+                  {isLoading && <p className="text-xs text-gray-500 mt-1">Carregando tipos...</p>}
                 </div>
+
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="price">
                     Preço
@@ -202,13 +224,15 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
                   <input
                     type="text"
                     id="price"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
+                    name="price"
+                    value={formData.price}
+                    onChange={handleChange}
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     required
-                    inputMode="numeric" // Impede setas de incremento/decremento
+                    inputMode="decimal"
                   />
                 </div>
+
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="quantity">
                     Quantidade
@@ -216,19 +240,22 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
                   <input
                     type="text"
                     id="quantity"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
+                    name="quantity"
+                    value={formData.quantity}
+                    onChange={handleChange}
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     required
-                    inputMode="numeric" // Impede setas de incremento/decremento
+                    inputMode="numeric"
                   />
                 </div>
+
                 <div className="flex justify-between mt-4 space-x-4">
                   <button
                     type="submit"
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50"
+                    disabled={isSubmitting}
                   >
-                    Salvar
+                    {isSubmitting ? 'Salvando...' : 'Salvar'}
                   </button>
 
                   <button
@@ -238,7 +265,6 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal,addedPro
                   >
                     Cancelar
                   </button>
-             
                 </div>
               </form>
             </div>

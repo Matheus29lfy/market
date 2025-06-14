@@ -6,14 +6,14 @@ import { toast } from 'react-toastify';
 // import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { getTokenSession } from '../lib';
-// import { Notyf } from 'notyf';
-// import 'notyf/notyf.min.css';
+import { fetchProducts, fetchTaxes, createSell } from '../services/apiService';
 
 interface Product {
   id: number;
   name: string;
   price: number;
-  type_product: number; // Assumindo que este é o ID do tipo de produto
+  quantity: number;
+  type_product_id: number;
 }
 
 interface CartItem extends Product {
@@ -22,7 +22,7 @@ interface CartItem extends Product {
 
 interface Tax {
   id: number;
-  type_category_id: number;
+  type_product_id: number;
   name: string;
   tax_percentage: number;
 }
@@ -41,24 +41,54 @@ const HomePage: React.FC = () => {
   const[user, setUser]= useState<User>()
   // const { isAuthenticated } = useAuth();
   const router = useRouter(); 
+  const [isLoading, setIsLoading] = useState(true);
+  const [totalNoTax, setTotalNoTax] = useState(0);
+  const [totalWithTaxes, setTotalWithTaxes] = useState(0);
 
-  
-  useEffect(() => {
-    fetch('http://localhost:8080/products')
-      .then(response => response.json())
-      .then(data => setProducts(data.products))
-      .catch(error => console.error('Erro ao buscar produtos:', error));
+useEffect(() => {
+  const loadData = async () => {
+    setIsLoading(true);
+    
+    try {
+      // Executa as requisições em paralelo
+      const [productsResponse, taxesResponse] = await Promise.allSettled([
+        fetchProducts(),
+        fetchTaxes()
+      ]);
 
-      const userLocal =  getTokenSession()
-      setUser(userLocal)
-  }, []);
+      // Trata a resposta de produtos
+      if (productsResponse.status === 'fulfilled') {
+        setProducts(productsResponse.value.products || []);
+      } else {
+        console.error('Products fetch error:', productsResponse.reason);
+        toast.error('Falha ao carregar produtos');
+        setProducts([]); // Define um array vazio como fallback
+      }
 
-  useEffect(() => {
-    fetch('http://localhost:8080/taxes')
-      .then(response => response.json())
-      .then(data => setTaxes(data.taxes))
-      .catch(error => console.error('Erro ao buscar impostos:', error));
-  }, []);
+      // Trata a resposta de impostos
+      if (taxesResponse.status === 'fulfilled') {
+        setTaxes(taxesResponse.value.taxes || []);
+      } else {
+        console.error('Taxes fetch error:', taxesResponse.reason);
+        toast.error('Falha ao carregar impostos');
+        setTaxes([]); // Define um array vazio como fallback
+      }
+
+      // Carrega dados do usuário (operação local)
+      const userLocal = getTokenSession();
+      setUser(userLocal);
+
+    } catch (error) {
+      // Erros gerais (não relacionados às requisições individuais)
+      console.error('Unexpected error:', error);
+      toast.error('Erro inesperado ao carregar dados');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  loadData();
+}, []);
 
   const addToCart = (product: Product) => {
     setCart(prevCart => {
@@ -91,20 +121,20 @@ const HomePage: React.FC = () => {
   };
 
   const calculateTotal = () => {
-    let totalNoTax = 0;
-    let totalWithTaxes = 0;
+    let totalNoTaxCalc = 0;
+    let totalWithTaxesCalc = 0;
 
     cart.forEach(item => {
-      const tax = taxes.find(t => t.type_category_id === item.type_product);
+      const tax = taxes.find(t => t.type_product_id === item.type_product_id);
       const taxRate = tax ? tax.tax_percentage / 100 : 0;
       const itemTotalNoTax = item.price * item.quantity;
       const itemTotalWithTax = itemTotalNoTax + itemTotalNoTax * taxRate;
 
-      totalNoTax += itemTotalNoTax;
-      totalWithTaxes += itemTotalWithTax;
+      totalNoTaxCalc += itemTotalNoTax;
+      totalWithTaxesCalc += itemTotalWithTax;
     });
 
-    return { totalNoTax, totalWithTaxes };
+    return { totalNoTaxCalc, totalWithTaxesCalc };
   };
 
 //    function getTokenSession():any {
@@ -113,49 +143,62 @@ const HomePage: React.FC = () => {
 //      const session = JSON.parse(tokenConvert);
 // }
   const handleCheckout = async () => {
-    
   
     // if (user && user.authenticate) {
 
     //   console.log(user.authenticate)
     // return
-    const { totalNoTax, totalWithTaxes } = calculateTotal();
 
-    if(totalNoTax <= 0){
+    const { totalNoTaxCalc, totalWithTaxesCalc } = calculateTotal();
+
+    if(totalNoTaxCalc <= 0){
         toast.error('Adicione pelo menos um produto para finalizar a venda')
         return
     }
 
-
-    const response = await fetch('http://localhost:8080/sells', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        user_id:1,//Estou vendo para implementar a parte de login
-        product_id: cart.map(item => item.id),
-        quantity: cart.map(item => item.quantity),
-        total_no_tax: totalNoTax,
-        total_with_taxes: totalWithTaxes,
-      }),
-    });
-
-    if (response.ok) {
+      try {
+        await createSell({
+          user_id: 1, // Substitua pela lógica real de usuário
+          product_id: cart.map(item => item.id),
+          quantity: cart.map(item => item.quantity),
+          total_no_tax: totalNoTaxCalc,
+          total_with_taxes: totalWithTaxesCalc,
+        });
+      setTotalNoTax(totalNoTaxCalc)
+      setTotalWithTaxes(totalWithTaxesCalc)
       toast.success('Venda realizada com sucesso');
       setCart([]);
-    } else {
-     toast.error('Adicione pelo menos um produto para finalizar a venda')
+    } catch (error) {
+      toast.error('Erro ao finalizar a venda');
     }
+  };
+
+  // ... (mantenha o restante do JSX como está, apenas adicione um loader)
+
+
+    // if (response.ok) {
+    //   toast.success('Venda realizada com sucesso');
+    //   setCart([]);
+    // } else {
+    //  toast.error('Adicione pelo menos um produto para finalizar a venda')
+    // }
   // } else {
   //   // console.log(user.authenticate)
   //   return
   //   // Redirecionar para a página de login se não estiver autenticado
   //   router.push('/login');
   // }
-  };
+  // const { totalNoTax, totalWithTaxes } = calculateTotal();
 
-  const { totalNoTax, totalWithTaxes } = calculateTotal();
+  if (isLoading) {
+    return (
+      <div className="contain er mx-auto p-4">
+        <div className="text-center py-8">
+          <p>Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4">
@@ -179,7 +222,7 @@ const HomePage: React.FC = () => {
       <h2 className="text-2xl font-bold mt-4">Carrinho</h2>
       <ul>
         {cart.map(item => {
-          const tax = taxes.find(t => t.type_category_id === item.type_product);
+          const tax = taxes.find(t => t.type_product_id === item.type_product_id);
           const taxRate = tax ? tax.tax_percentage / 100 : 0;
           const itemTotalNoTax = item.price * item.quantity;
           const itemTax = itemTotalNoTax * taxRate;

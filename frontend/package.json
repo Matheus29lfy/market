@@ -5,8 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL_PRODUCTION next start",
+    "start:local": "next start",
+    "lint": "next lint",
+    "build:prod": "NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL_PRODUCTION next build"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
