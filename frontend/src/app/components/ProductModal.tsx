@@ -106,12 +106,12 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, closeModal, addedPr
     setIsSubmitting(true);
 
     try {
-      const product = {
-        name: formData.name,
-        price: parseFloat(formData.price),
-        quantity: parseInt(formData.quantity, 10),
-        type_product_id: parseInt(formData.productTypeId),
-      };
+        const product = {
+          name: formData.name,
+          price: parseFloat(formData.price.replace(',', '.')),
+          quantity: parseInt(formData.quantity, 10),
+          type_product_id: parseInt(formData.productTypeId),
+        };
 
       const response = await createProduct(product);
 

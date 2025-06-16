@@ -95,7 +95,7 @@ const TaxesModal: React.FC<TaxesModalProps> = ({ isOpen, closeModal, onSuccess }
 
     try {
       const taxData = {
-        tax_percentage: parseFloat(formData.taxPercentage),
+        tax_percentage: parseFloat(formData.taxPercentage.replace(',', '.')),
         type_product_id: parseInt(formData.typeProductId)
       };
 
