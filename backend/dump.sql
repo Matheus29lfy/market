@@ -26,7 +26,7 @@ CREATE TABLE products (
 -- Tabela de Impostos
 CREATE TABLE taxes (
     id SERIAL PRIMARY KEY,
-    type_category_id INTEGER REFERENCES type_products(id),
+    type_product_id INTEGER REFERENCES type_products(id),
     tax_percentage DECIMAL(5, 2) NOT NULL
 );
 
