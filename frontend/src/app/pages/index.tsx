@@ -42,8 +42,6 @@ const HomePage: React.FC = () => {
   // const { isAuthenticated } = useAuth();
   const router = useRouter(); 
   const [isLoading, setIsLoading] = useState(true);
-  const [totalNoTax, setTotalNoTax] = useState(0);
-  const [totalWithTaxes, setTotalWithTaxes] = useState(0);
 
 useEffect(() => {
   const loadData = async () => {
@@ -121,8 +119,8 @@ useEffect(() => {
   };
 
   const calculateTotal = () => {
-    let totalNoTaxCalc = 0;
-    let totalWithTaxesCalc = 0;
+    let totalNoTax = 0;
+    let totalWithTaxes= 0;
 
     cart.forEach(item => {
       const tax = taxes.find(t => t.type_product_id === item.type_product_id);
@@ -130,11 +128,11 @@ useEffect(() => {
       const itemTotalNoTax = item.price * item.quantity;
       const itemTotalWithTax = itemTotalNoTax + itemTotalNoTax * taxRate;
 
-      totalNoTaxCalc += itemTotalNoTax;
-      totalWithTaxesCalc += itemTotalWithTax;
+      totalNoTax += itemTotalNoTax;
+      totalWithTaxes += itemTotalWithTax;
     });
 
-    return { totalNoTaxCalc, totalWithTaxesCalc };
+    return { totalNoTax, totalWithTaxes };
   };
 
 //    function getTokenSession():any {
@@ -142,6 +140,8 @@ useEffect(() => {
 //      const tokenConvert =  JSON.stringify(token)
 //      const session = JSON.parse(tokenConvert);
 // }
+  const { totalNoTax, totalWithTaxes } = calculateTotal();
+
   const handleCheckout = async () => {
   
     // if (user && user.authenticate) {
@@ -149,9 +149,7 @@ useEffect(() => {
     //   console.log(user.authenticate)
     // return
 
-    const { totalNoTaxCalc, totalWithTaxesCalc } = calculateTotal();
-
-    if(totalNoTaxCalc <= 0){
+    if(totalNoTax <= 0){
         toast.error('Adicione pelo menos um produto para finalizar a venda')
         return
     }
@@ -161,34 +159,15 @@ useEffect(() => {
           user_id: 1, // Substitua pela lógica real de usuário
           product_id: cart.map(item => item.id),
           quantity: cart.map(item => item.quantity),
-          total_no_tax: totalNoTaxCalc,
-          total_with_taxes: totalWithTaxesCalc,
+          total_no_tax: totalNoTax,
+          total_with_taxes: totalWithTaxes,
         });
-      setTotalNoTax(totalNoTaxCalc)
-      setTotalWithTaxes(totalWithTaxesCalc)
       toast.success('Venda realizada com sucesso');
       setCart([]);
     } catch (error) {
       toast.error('Erro ao finalizar a venda');
     }
   };
-
-  // ... (mantenha o restante do JSX como está, apenas adicione um loader)
-
-
-    // if (response.ok) {
-    //   toast.success('Venda realizada com sucesso');
-    //   setCart([]);
-    // } else {
-    //  toast.error('Adicione pelo menos um produto para finalizar a venda')
-    // }
-  // } else {
-  //   // console.log(user.authenticate)
-  //   return
-  //   // Redirecionar para a página de login se não estiver autenticado
-  //   router.push('/login');
-  // }
-  // const { totalNoTax, totalWithTaxes } = calculateTotal();
 
   if (isLoading) {
     return (
